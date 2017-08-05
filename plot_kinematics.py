@@ -6,8 +6,8 @@ histname = "h_pT"
 #histname = "h_eta"
 hist = "fevt/%s"%histname
 
-#t_Hgg = ROOT.TFile('~/eos/IMGs/HighLumiPileUp_ROOT/H125GGgluonfusion_Pt25_Eta14_13TeV_TuneCUETP8M1_HighLumiPileUpv2_FEVTDEBUG_nXXX_IMG.root', 'READ')
-t_Hgg = ROOT.TFile('~/eos/IMGs/HighLumiPileUp_ROOT/SingleHiggsPt10to80_Eta14_pythia8_HighLumiPileUpv2_FEVTDEBUG_nXXX_IMG.root', 'READ')
+t_Hgg = ROOT.TFile('~/eos/IMGs/HighLumiPileUp_ROOT/H125GGgluonfusion_Pt25_Eta14_13TeV_TuneCUETP8M1_HighLumiPileUpv2_FEVTDEBUG_nXXX_IMG.root', 'READ')
+#t_Hgg = ROOT.TFile('~/eos/IMGs/HighLumiPileUp_ROOT/SingleHiggsPt10to80_Eta14_pythia8_HighLumiPileUpv2_FEVTDEBUG_nXXX_IMG.root', 'READ')
 h_Hgg = ROOT.gDirectory.Get(hist)
 print " >> Hgg entries:",h_Hgg.GetEntries()
 
@@ -16,7 +16,8 @@ print " >> Hgg entries:",h_Hgg.GetEntries()
 #t_Ggg = ROOT.TFile('~/eos/IMGs/TEST_eta23/PromptDiPhoton_PtHat10_MGG80toInf_Pt25_Eta23_13TeV_TuneCUETP8M1_FEVTDEBUG_TEST_IMG.root', 'READ')
 #t_Ggg = ROOT.TFile('~/eos/IMGs/HighLumiPileUp_ROOT/PromptDiPhoton_PtHat45_MGG80toInf_Pt25_Eta14_13TeV_TuneCUETP8M1_HighLumiPileUp_FEVTDEBUG_nXXX_IMG.root', 'READ')
 #t_Ggg = ROOT.TFile('~/eos/IMGs/HighLumiPileUp_ROOT/PromptDiPhoton_MGG80toInf_Pt25_Eta14_13TeV_TuneCUETP8M1_HighLumiPileUp_FEVTDEBUG_nXXX_IMG.root', 'READ')
-t_Ggg = ROOT.TFile('~/eos/IMGs/HighLumiPileUp_ROOT/DoublePhotonGaussPt55_StdDev20_HighLumiPileUpv3_FEVTDEBUG_nXXX_IMG.root', 'READ')
+#t_Ggg = ROOT.TFile('~/eos/IMGs/HighLumiPileUp_ROOT/DoublePhotonGaussPt55_StdDev20_HighLumiPileUpv3_FEVTDEBUG_nXXX_IMG.root', 'READ')
+t_Ggg = ROOT.TFile('output.root', 'READ')
 h_Ggg = ROOT.gDirectory.Get(hist)
 print " >> gg entries:",h_Ggg.GetEntries()
 

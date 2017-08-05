@@ -54,6 +54,8 @@ Implementation:
 #include "TMath.h"
 
 #include "DataFormats/HepMCCandidate/interface/GenParticle.h"
+#include "DataFormats/EgammaCandidates/interface/Photon.h"
+#include "DataFormats/EgammaCandidates/interface/PhotonFwd.h" // reco::PhotonCollection defined here
 
 //
 // class declaration
@@ -84,11 +86,12 @@ class RecHitAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
     edm::EDGetTokenT<EcalRecHitCollection> EERecHitCollectionT_;
     edm::EDGetTokenT<HBHERecHitCollection> HBHERecHitCollectionT_;
     edm::EDGetTokenT<reco::GenParticleCollection> genParticleCollectionT_;
+    edm::EDGetTokenT<reco::PhotonCollection> photonCollectionT_;
     //edm::InputTag trackTags_; //used to select what tracks to read from configuration file
 
     static const int EE_IZ_MAX = 2;
-    //const unsigned HBHE_IETA_MAX = hcaldqm::constants::IETA_MAX_HB + 1;//17
-    const unsigned HBHE_IETA_MAX = 20;
+    const unsigned HBHE_IETA_MAX = hcaldqm::constants::IETA_MAX_HB + 1;//17
+    //const unsigned HBHE_IETA_MAX = 20;
     const unsigned EE_NC_PER_ZSIDE = EEDetId::IX_MAX*EEDetId::IY_MAX; // 100*100
 
     // Initialize Calorimeter Geometry
@@ -112,12 +115,12 @@ class RecHitAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
     TH1D * h_pT; 
     TH1D * h_E; 
     TH1D * h_eta; 
-    TH1D * h_m0; 
+    //TH1D * h_m0; 
 
     TTree* RHTree;
 
     float eventId_;
-    float m0_;
+    //float m0_;
     std::vector<float> vEB_energy_;
     std::vector<float> vEB_time_;
     std::vector<float> vEB_adc_[EcalDataFrame::MAXSAMPLES];
@@ -152,6 +155,7 @@ RecHitAnalyzer::RecHitAnalyzer(const edm::ParameterSet& iConfig)
   HBHERecHitCollectionT_ = consumes<HBHERecHitCollection>(iConfig.getParameter<edm::InputTag>("reducedHBHERecHitCollection"));
 
   genParticleCollectionT_ = consumes<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("genParticleCollection"));
+  photonCollectionT_ = consumes<reco::PhotonCollection>(iConfig.getParameter<edm::InputTag>("gedPhotonCollection"));
 
   //now do what ever initialization is needed
   usesResource("TFileService");
@@ -204,9 +208,9 @@ RecHitAnalyzer::RecHitAnalyzer(const edm::ParameterSet& iConfig)
   hHBHE_energy = fs->make<TH2D>("HBHE_energy", "E(i#phi,i#eta);i#phi;i#eta",
       hcaldqm::constants::IPHI_NUM,      hcaldqm::constants::IPHI_MIN-1, hcaldqm::constants::IPHI_MAX,
       2*hcaldqm::constants::IETA_MAX_HE,-hcaldqm::constants::IETA_MAX_HE,hcaldqm::constants::IETA_MAX_HE );
-  hHBHE_energy_EB = fs->make<TH2D>("HBHE_energy_EB", "E(i#phi,i#eta);i#phi;i#eta",
-      hcaldqm::constants::IPHI_NUM, hcaldqm::constants::IPHI_MIN-1,hcaldqm::constants::IPHI_MAX,
-      2*HBHE_IETA_MAX,             -HBHE_IETA_MAX,                 HBHE_IETA_MAX );
+  hHBHE_energy_EB = fs->make<TH2D>("HBHE_energy_EB", "E(i#phi,i#eta);i#phi;i#eta", 72, 0, 72, 2*17, -17, 17);
+  //    hcaldqm::constants::IPHI_NUM, hcaldqm::constants::IPHI_MIN-1,hcaldqm::constants::IPHI_MAX,
+  //    2*HBHE_IETA_MAX,             -HBHE_IETA_MAX,                 HBHE_IETA_MAX );
   hHBHE_depth = fs->make<TH1D>("HBHE_depth", "Depth;depth;Hits",
       hcaldqm::constants::DEPTH_NUM, hcaldqm::constants::DEPTH_MIN, hcaldqm::constants::DEPTH_MAX+1);
 
@@ -214,12 +218,12 @@ RecHitAnalyzer::RecHitAnalyzer(const edm::ParameterSet& iConfig)
   h_pT  = fs->make<TH1D>("h_pT" , "p_{T};p_{T};Particles", 100,  0., 500.);
   h_E   = fs->make<TH1D>("h_E"  , "E;E;Particles"        , 100,  0., 800.);
   h_eta = fs->make<TH1D>("h_eta", "#eta;#eta;Particles"  ,  50,-2.4, 2.4);
-  h_m0  = fs->make<TH1D>("h_m0" , "m0;m0;Events"        ,   72, 50., 950.);
+  //h_m0  = fs->make<TH1D>("h_m0" , "m0;m0;Events"        ,   72, 50., 950.);
 
   // Output Tree
   RHTree = fs->make<TTree>("RHTree", "RecHit tree");
   RHTree->Branch("eventId",      &eventId_);
-  RHTree->Branch("m0",           &m0_);
+  //RHTree->Branch("m0",           &m0_);
   RHTree->Branch("EB_energy",    &vEB_energy_);
   RHTree->Branch("EB_time",      &vEB_time_);
   /*
@@ -259,84 +263,43 @@ RecHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   using namespace edm;
 
   int nPho = 0;
-  bool isDecayed = true;
-  //bool isHiggs = true;
-  bool isHiggs = false;
-  //float etaCut = 1.4;
-  float etaCut = 2.3;
+  float etaCut = 1.4;
+  //float etaCut = 2.3;
   float ptCut = 25.;
-  edm::Handle<reco::GenParticleCollection> genParticles;
-  iEvent.getByToken(genParticleCollectionT_, genParticles);
-  for (reco::GenParticleCollection::const_iterator iP = genParticles->begin();
-       iP != genParticles->end();
-       ++iP) {
+  edm::Handle<reco::PhotonCollection> photons;
+  iEvent.getByToken(photonCollectionT_, photons);
+  std::cout << "PhoCol.size: " << photons->size() << std::endl;
+  for(reco::PhotonCollection::const_iterator iPho = photons->begin();
+      iPho != photons->end();
+      ++iPho) {
 
-    // PDG ID cut
-    if ( std::abs(iP->pdgId()) != 22 ) continue;
-    
-    // Decay status
-    //if ( iP->status() != 23 ) continue;
-    if ( iP->status() != 1 ) continue; // NOT the same as Pythia status
+      // Kinematic cuts
+      if ( std::abs(iPho->eta()) > etaCut ) continue;
+      if ( std::abs(iPho->pt()) < ptCut ) continue;
 
-    if ( isDecayed ) {
-        // Check ancestry
-        if ( !iP->mother() ) continue;
-        if ( isHiggs ) {
-            if ( std::abs(iP->mother()->pdgId()) != 25 && std::abs(iP->mother()->pdgId()) != 22 ) continue;
-        } else {
-            if ( std::abs(iP->mother()->status()) != 44 && std::abs(iP->mother()->status()) != 23 ) continue;
-        }
-        // Kinematic cuts
-        if ( std::abs(iP->eta()) > etaCut ) continue;
-        if ( std::abs(iP->pt()) < ptCut ) continue;
-    } // apply cuts
+      nPho++;
 
-    nPho++;
-
-  } // genParticle loop: count good photons
+  } // recoPhotons
 
   // Require exactly 2 gen-level photons
   // Indifferent about photons of status != 1
   if ( nPho != 2 ) return; 
   
-  // Fill loop
-  math::XYZTLorentzVector vDiPho;
-  for (reco::GenParticleCollection::const_iterator iP = genParticles->begin();
-       iP != genParticles->end();
-       ++iP) {
+  for(reco::PhotonCollection::const_iterator iPho = photons->begin();
+      iPho != photons->end();
+      ++iPho) {
 
-    // PDG ID cut
-    if ( std::abs(iP->pdgId()) != 22 ) continue;
-    
-    // Decay status
-    //if ( iP->status() != 23 ) continue;
-    if ( iP->status() != 1 ) continue;
+      // Kinematic cuts
+      if ( std::abs(iPho->eta()) > etaCut ) continue;
+      if ( std::abs(iPho->pt()) < ptCut ) continue;
 
-    if ( isDecayed ) {
-        // Check ancestry
-        if ( isHiggs ) {
-            if ( std::abs(iP->mother()->pdgId()) != 25 && std::abs(iP->mother()->pdgId()) != 22 ) continue;
-        } else {
-            if ( std::abs(iP->mother()->status()) != 44 && std::abs(iP->mother()->status()) != 23 ) continue;
-        }
-        // Kinematic cuts
-        if ( std::abs(iP->eta()) > etaCut ) continue;
-        if ( std::abs(iP->pt()) < ptCut ) continue;
-    } // apply cuts
+      h_pT-> Fill( iPho->pt()      );
+      h_E->  Fill( iPho->energy()  );
+      h_eta->Fill( iPho->eta()     );
+      std::cout << "nPho:" << nPho << " pT:" << iPho->pt() << " eta:" << iPho->eta() << " E:" << iPho->energy() << std::endl;
 
-    if ( isDecayed ) { 
-        std::cout << "status:" <<iP->status() << " pT:" << iP->pt() << " eta:" << iP->eta() << " E:" << iP->energy() << " mothId:" << iP->mother()->pdgId() << std::endl;
-    } else {
-        std::cout << "status:" <<iP->status() << " pT:" << iP->pt() << " eta:" << iP->eta() << " E:" << iP->energy() << std::endl;
-    }
-    vDiPho += iP->p4();
-    // Fill histograms
-    h_pT-> Fill( iP->pt()      );
-    h_E->  Fill( iP->energy()  );
-    h_eta->Fill( iP->eta()     );
-  } // genParticle loop: fill hist
-  h_m0->Fill( vDiPho.mass() );
-  std::cout << " m0: " << vDiPho.mass() <<" (" << vDiPho.T() << ")" << std::endl;
+  } // recoPhotons
+
 
   // ----- Get Calorimeter Geometry ----- //
   // Provides access to global cell position and coordinates below
@@ -572,6 +535,8 @@ RecHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       hHBHE_energy->Fill( iphi_,ieta_,iRHit->energy() );
     }
 
+    if ( abs(hId.ieta()) > HBHE_IETA_MAX ) continue;
+
     // Fill restricted coverage histograms
     hHBHE_energy_EB->Fill( iphi_,ieta_,iRHit->energy() );
 
@@ -617,7 +582,7 @@ RecHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
      */
   // Write out event ID
   eventId_ = iEvent.id().event();
-  m0_ = vDiPho.mass();
+  //m0_ = vDiPho.mass();
 
   RHTree->Fill();
 
