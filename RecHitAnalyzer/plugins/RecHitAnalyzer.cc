@@ -285,6 +285,7 @@ RecHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   // Indifferent about photons of status != 1
   if ( nPho != 2 ) return; 
   
+  /*
   for(reco::PhotonCollection::const_iterator iPho = photons->begin();
       iPho != photons->end();
       ++iPho) {
@@ -299,7 +300,44 @@ RecHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       std::cout << "nPho:" << nPho << " pT:" << iPho->pt() << " eta:" << iPho->eta() << " E:" << iPho->energy() << std::endl;
 
   } // recoPhotons
+  */
+  float dRCut = 0.4;
+  float dEta, dPhi, dR;
+  edm::Handle<reco::GenParticleCollection> genParticles;
+  iEvent.getByToken(genParticleCollectionT_, genParticles);
+  for(reco::PhotonCollection::const_iterator iPho = photons->begin();
+      iPho != photons->end();
+      ++iPho) {
 
+      // Kinematic cuts
+      if ( std::abs(iPho->eta()) > etaCut ) continue;
+      if ( std::abs(iPho->pt()) < ptCut ) continue;
+
+      for (reco::GenParticleCollection::const_iterator iGen = genParticles->begin();
+           iGen != genParticles->end();
+           ++iGen) {
+
+          // ID cuts
+          if ( std::abs(iGen->pdgId()) != 22 ) continue;
+          if ( iGen->status() != 1 ) continue; // NOT the same as Pythia status
+          if ( !iGen->mother() ) continue;
+          if ( std::abs(iGen->mother()->status()) != 44 && std::abs(iGen->mother()->status()) != 23 ) continue;
+
+          // Match by dR
+          dEta = std::abs( iPho->eta() - iGen->eta() );
+          dPhi = std::abs( iPho->phi() - iGen->phi() );
+          dR = TMath::Power(dEta,2.) + TMath::Power(dPhi,2.);
+          dR = TMath::Sqrt(dR);
+          if ( dR < dRCut ) {
+             h_pT-> Fill( iGen->pt()      );
+             h_E->  Fill( iGen->energy()  );
+             h_eta->Fill( iGen->eta()     );
+             break;
+          }
+
+      } // genParticle loop: count good photons
+
+  } // recoPhotons
 
   // ----- Get Calorimeter Geometry ----- //
   // Provides access to global cell position and coordinates below
