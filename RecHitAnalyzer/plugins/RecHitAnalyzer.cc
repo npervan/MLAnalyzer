@@ -90,8 +90,9 @@ class RecHitAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
     //edm::InputTag trackTags_; //used to select what tracks to read from configuration file
 
     static const int EE_IZ_MAX = 2;
-    const unsigned HBHE_IETA_MAX = hcaldqm::constants::IETA_MAX_HB + 1;//17
-    //const unsigned HBHE_IETA_MAX = 20;
+    //const unsigned HBHE_IETA_MAX = hcaldqm::constants::IETA_MAX_HB + 1;//17
+    //const int HBHE_IETA_MAX = hcaldqm::constants::IETA_MAX_HB + 1;//17
+    const int HBHE_IETA_MAX = 20;
     const unsigned EE_NC_PER_ZSIDE = EEDetId::IX_MAX*EEDetId::IY_MAX; // 100*100
 
     // Initialize Calorimeter Geometry
@@ -208,7 +209,7 @@ RecHitAnalyzer::RecHitAnalyzer(const edm::ParameterSet& iConfig)
   hHBHE_energy = fs->make<TH2D>("HBHE_energy", "E(i#phi,i#eta);i#phi;i#eta",
       hcaldqm::constants::IPHI_NUM,      hcaldqm::constants::IPHI_MIN-1, hcaldqm::constants::IPHI_MAX,
       2*hcaldqm::constants::IETA_MAX_HE,-hcaldqm::constants::IETA_MAX_HE,hcaldqm::constants::IETA_MAX_HE );
-  hHBHE_energy_EB = fs->make<TH2D>("HBHE_energy_EB", "E(i#phi,i#eta);i#phi;i#eta", 72, 0, 72, 2*17, -17, 17);
+  hHBHE_energy_EB = fs->make<TH2D>("HBHE_energy_EB", "E(i#phi,i#eta);i#phi;i#eta", 72, 0, 72, 2*20, -20, 20);
   //    hcaldqm::constants::IPHI_NUM, hcaldqm::constants::IPHI_MIN-1,hcaldqm::constants::IPHI_MAX,
   //    2*HBHE_IETA_MAX,             -HBHE_IETA_MAX,                 HBHE_IETA_MAX );
   hHBHE_depth = fs->make<TH1D>("HBHE_depth", "Depth;depth;Hits",
@@ -281,9 +282,9 @@ RecHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   } // recoPhotons
 
-  // Require exactly 2 gen-level photons
-  // Indifferent about photons of status != 1
-  if ( nPho != 2 ) return; 
+  // Require at least 2 passed reco photons
+  // Will also include PU photons
+  if ( nPho < 2 ) return; 
   
   /*
   for(reco::PhotonCollection::const_iterator iPho = photons->begin();
@@ -312,6 +313,8 @@ RecHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
       // Kinematic cuts
       if ( std::abs(iPho->eta()) > etaCut ) continue;
       if ( std::abs(iPho->pt()) < ptCut ) continue;
+
+      std::cout << "nPho:" << nPho << " pT:" << iPho->pt() << " eta:" << iPho->eta() << " E:" << iPho->energy() << std::endl;
 
       for (reco::GenParticleCollection::const_iterator iGen = genParticles->begin();
            iGen != genParticles->end();
@@ -484,7 +487,7 @@ RecHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   */
 
   // ----- EE reduced rechit collection ----- //
-  // This contatins the reduced EB rechit collection after
+  // This contatins the reduced EE rechit collection after
   // the zero suppression and bad channel clean-up
 
   int ix_, iy_, iz_; // NOTE: rows:iy, columns:ix
@@ -576,7 +579,8 @@ RecHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
     if ( abs(hId.ieta()) > HBHE_IETA_MAX ) continue;
 
     // Fill restricted coverage histograms
-    hHBHE_energy_EB->Fill( iphi_,ieta_,iRHit->energy() );
+    if ( abs(hId.ieta()) <= 17 )
+      hHBHE_energy_EB->Fill( iphi_,ieta_,iRHit->energy() );
 
     // Create hashed Index
     // Effectively sums energies over depth for a given (ieta,iphi)
