@@ -270,8 +270,8 @@ RecHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   using namespace edm;
 
   int nPho = 0;
-  float etaCut = 1.4;
-  //float etaCut = 2.3;
+  //float etaCut = 1.4;
+  float etaCut = 2.3;
   float ptCut = 25.;
   edm::Handle<reco::PhotonCollection> photons;
   iEvent.getByToken(photonCollectionT_, photons);
