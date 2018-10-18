@@ -69,5 +69,22 @@ process.TFileService = cms.Service("TFileService",
     )
 
 #process.SimpleMemoryCheck = cms.Service( "SimpleMemoryCheck", ignoreTotal = cms.untracked.int32(1) )
+process.diPhotonTrg = cms.EDFilter("HLTHighLevel",
+                                          eventSetupPathsKey = cms.string(''),
+                                          TriggerResultsTag = cms.InputTag("TriggerResults","","HLT"),
+                                          HLTPaths = cms.vstring(
+                                            'HLT_Diphoton30PV_18PV_R9Id_AND_IsoCaloId_AND_HE_R9Id_DoublePixelVeto_Mass55',
+                                            'HLT_Diphoton30EB_18EB_R9Id_OR_IsoCaloId_AND_HE_R9Id_DoublePixelVeto_Mass55'
+                                            ),
+                                          andOr = cms.bool(True),
+                                          throw = cms.bool(False)
+                                          )
 
+#process.hltTrigReport = cms.EDAnalyzer( 'HLTrigReport',
+#    HLTriggerResults = cms.InputTag( 'TriggerResults','','HLT' )
+#)
+#process.HLTAnalyzerEndpath = cms.EndPath( process.hltTrigReport )
+#process.MessageLogger.categories.append("HLTrigReport")
+#
+#process.p = cms.Path(process.diPhotonTrg*process.fevt)
 process.p = cms.Path(process.fevt)
