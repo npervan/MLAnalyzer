@@ -126,9 +126,10 @@ RecHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   fillTracksAtECALstitched( iEvent, iSetup );
   fillPFCandsAtEBEE( iEvent, iSetup );
   fillPFCandsAtECALstitched( iEvent, iSetup );
-  //fillTRKlayersAtEBEE( iEvent, iSetup );
+
+  fillTRKlayersAtEBEE( iEvent, iSetup );
   //fillTRKlayersAtECAL( iEvent, iSetup );
-  //fillTRKvolumeAtEBEE( iEvent, iSetup );
+  fillTRKvolumeAtEBEE( iEvent, iSetup );
   //fillTRKvolumeAtECAL( iEvent, iSetup );
 
   ////////////// 4-Momenta //////////

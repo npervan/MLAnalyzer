@@ -240,6 +240,10 @@ void fillTRKatEE ( EEDetId eeId, int iL, TH2F *hTRK_EE[][nEE], std::vector<float
   vTRK_EE_[iL][iz_][idx_] += 1.;
 }
 
+
+
+
+
 // Fill TRK rechits at EB/EE ______________________________________________________________//
 void RecHitAnalyzer::fillTRKlayersAtEBEE ( const edm::Event& iEvent, const edm::EventSetup& iSetup ) {
 
@@ -302,6 +306,103 @@ void RecHitAnalyzer::fillTRKlayersAtEBEE ( const edm::Event& iEvent, const edm::
   edm::ESHandle<TrackerGeometry> tkGeomH_;
   iSetup.get<TrackerDigiGeometryRecord>().get( tkGeomH_ );
   const TrackerGeometry* tkGeom = tkGeomH_.product();
+
+
+//sipixel
+  edm::ESHandle<TrackerGeometry> geom;
+  iSetup.get<TrackerDigiGeometryRecord>().get( geom );
+  const TrackerGeometry& theTracker(*geom);
+
+
+  edm::Handle<SiPixelRecHitCollection> recHitColl;
+  iEvent.getByLabel( edm::InputTag("siPixelRecHits") , recHitColl);
+
+  SiPixelRecHitCollection::const_iterator recHitIdIterator      = (recHitColl.product())->begin();
+  SiPixelRecHitCollection::const_iterator recHitIdIteratorEnd   = (recHitColl.product())->end();
+
+  for ( ; recHitIdIterator != recHitIdIteratorEnd; recHitIdIterator++)
+  {
+    SiPixelRecHitCollection::DetSet detset = *recHitIdIterator;
+    DetId detId = DetId(detset.detId()); // Get the Detid object
+    unsigned int subid=detId.subdetId(); //subdetector type, barrel=1, fpix=2
+    unsigned int layer = getLayer(detId);
+    const PixelGeomDetUnit * theGeomDet = dynamic_cast<const PixelGeomDetUnit*> (theTracker.idToDet(detId) );
+
+    SiPixelRecHitCollection::DetSet::const_iterator pixeliter=detset.begin();
+    SiPixelRecHitCollection::DetSet::const_iterator rechitRangeIteratorEnd   = detset.end();
+    for(;pixeliter!=rechitRangeIteratorEnd;++pixeliter)
+    {//loop on the rechit
+
+      if (pixeliter->isValid())
+      {
+
+        LocalPoint lp = pixeliter->localPosition();
+        GlobalPoint GP = theGeomDet->surface().toGlobal(Local3DPoint(lp));
+        phi = GP.phi();
+        eta = GP.eta();
+        if ( std::abs(eta) > 3. ) continue;
+        DetId ecalId( spr::findDetIdECAL( caloGeom, eta, phi, false ) );
+        if ( tkId.subdetId() == PixelSubdetector::PixelBarrel )
+        {
+          hBPIX_layers->Fill(layer);
+          if ( ecalId.subdetId() == EcalBarrel )
+            fillTRKatEB( EBDetId(ecalId), layer-1, hBPIX_EB, vBPIX_EB_ );
+          else
+            if ( ecalId.subdetId() == EcalEndcap )
+              fillTRKatEE( EEDetId(ecalId), layer-1, hBPIX_EE, vBPIX_EE_ );
+
+        }
+        else 
+          if ( tkId.subdetId() == PixelSubdetector::PixelEndcap )
+          {
+            hFPIX_layers->Fill(layer);
+            if ( ecalId.subdetId() == EcalBarrel )
+              fillTRKatEB( EBDetId(ecalId), layer-1, hFPIX_EB, vFPIX_EB_ );
+            else
+              if ( ecalId.subdetId() == EcalEndcap )
+                fillTRKatEE( EEDetId(ecalId), layer-1, hFPIX_EE, vFPIX_EE_ );
+
+          }
+      }
+    }
+  }
+
+  std::vector<std::string> collections;
+  collections.push_back("rphiRecHit");
+  collections.push_back("stereoRecHit");
+  collections.push_back("rphiRecHitUnmatched");
+  collections.push_back("stereoRecHitUnmatched");
+  for (unsigned int the_collection=0; the_collection<collections.size();the_collection++)
+  {
+    edm::Handle<SiStripRecHit2DCollection> stripRecHitColl;
+    iEvent.getByLabel( edm::InputTag("siStripMatchedRecHits",collections[the_collection]) , stripRecHitColl);
+
+    SiStripRecHit2DCollection::const_iterator stripRecHitIdIterator      = (stripRecHitColl.product())->begin();
+    SiStripRecHit2DCollection::const_iterator stripRecHitIdIteratorEnd   = (stripRecHitColl.product())->end();
+
+    for (; stripRecHitIdIterator != stripRecHitIdIteratorEnd; ++stripRecHitIdIterator)
+    { 
+
+     SiStripRecHit2DCollection::DetSet detset = *stripRecHitIdIterator;
+     DetId detId = DetId(detset.detId()); // Get the Detid object
+     unsigned int subid=detId.subdetId(); //subdetector type, barrel=1, fpix=2
+     unsigned int layer = getLayer(detId);
+     const StripGeomDetUnit* theGeomDet = dynamic_cast<const StripGeomDetUnit*>( theTracker.idToDet( stripiter->geographicalId() ) );
+
+     SiStripRecHit2DCollection::DetSet::const_iterator stripiter=detset.begin();
+     SiStripRecHit2DCollection::DetSet::const_iterator stripRechitRangeIteratorEnd   = detset.end();
+     for(;stripiter!=stripRechitRangeIteratorEnd;++stripiter)
+      {
+        if (stripiter->isValid())
+        {
+
+          LocalPoint lp = stripiter->localPosition();
+          LocalError le = stripiter->localPositionError();
+          GlobalPoint GP = theGeomDet->surface().toGlobal(Local3DPoint(lp));
+        }
+      }
+    }
+  }
 
   //float maxEta = 0.;
   for ( TrackingRecHitCollection::const_iterator iRHit = TRKRecHitsH_->begin();

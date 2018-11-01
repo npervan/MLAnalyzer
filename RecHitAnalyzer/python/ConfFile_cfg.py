@@ -19,6 +19,8 @@ process = cms.Process("FEVTAnalyzer")
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.load("Configuration.StandardSequences.GeometryDB_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
+process.load("RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi")
+process.load("RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConverter_cfi")
 #process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
 #process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 #process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi");
@@ -50,4 +52,4 @@ process.TFileService = cms.Service("TFileService",
     )
 
 #process.SimpleMemoryCheck = cms.Service( "SimpleMemoryCheck", ignoreTotal = cms.untracked.int32(1) )
-process.p = cms.Path(process.fevt)
+process.p = cms.Path(process.siStripMatchedRecHits*process.siPixelRecHits*process.fevt)
