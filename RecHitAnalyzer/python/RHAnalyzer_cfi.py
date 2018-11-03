@@ -14,6 +14,13 @@ fevt = cms.EDAnalyzer('RecHitAnalyzer'
     , ak4PFJetCollection = cms.InputTag('ak4PFJets')
     , genJetCollection = cms.InputTag('ak4GenJets')
     , trackRecHitCollection = cms.InputTag('generalTracks')
+    , siPixelRecHitCollection = cms.InputTag('siPixelRecHits')
+    , siStripRecHitCollection =  cms.VInputTag(
+    cms.InputTag('siStripMatchedRecHits:rphiRecHit'),
+    cms.InputTag('siStripMatchedRecHits:stereoRecHit'),
+    cms.InputTag('siStripMatchedRecHits:rphiRecHitUnmatched'),
+    cms.InputTag('siStripMatchedRecHits:stereoRecHitUnmatched')
+    )
     , trackCollection = cms.InputTag("generalTracks")
     , pfCollection = cms.InputTag("particleFlow")
     , mode = cms.string("JetLevel")

@@ -241,7 +241,56 @@ void fillTRKatEE ( EEDetId eeId, int iL, TH2F *hTRK_EE[][nEE], std::vector<float
 }
 
 
+unsigned int getLayer(const DetId& detid)
+{
 
+  unsigned int subid=detid.subdetId();
+
+          switch(subid)
+          {
+            case 1://BPIX
+            {
+              PXBDetId pdetId = PXBDetId(detid);
+              return pdetId.layer();
+            }
+
+            case 2://FPIX
+            {
+              PXFDetId pdetId = PXFDetId(detid.rawId());
+              return pdetId.disk();
+            }
+
+            case 3://TIB
+            {
+              TIBDetId pdetId = TIBDetId(detid);
+              return pdetId.layer();
+            }
+            break;
+
+            case 4://TID
+            {
+              TIDDetId pdetId = TIDDetId(detid);
+              return pdetId.wheel();
+            }
+            break;
+
+            case 5://TOB
+            {
+              TOBDetId pdetId = TOBDetId(detid);
+              return pdetId.layer();
+            }
+            break;
+
+            case 6://TEC
+            {
+              TECDetId pdetId = TECDetId(detid);
+              return pdetId.wheel();
+            }
+            break;
+          }
+          return 999;
+
+}
 
 
 // Fill TRK rechits at EB/EE ______________________________________________________________//
@@ -249,7 +298,7 @@ void RecHitAnalyzer::fillTRKlayersAtEBEE ( const edm::Event& iEvent, const edm::
 
   //int ix_, iy_, iz_;
   //int iphi_, ieta_, idx_; // rows:ieta, cols:iphi
-  int layer;
+  //int layer;
   float eta, phi;//, rho;
   GlobalPoint pos;
 
@@ -303,10 +352,6 @@ void RecHitAnalyzer::fillTRKlayersAtEBEE ( const edm::Event& iEvent, const edm::
   iSetup.get<CaloGeometryRecord>().get( caloGeomH_ );
   const CaloGeometry* caloGeom = caloGeomH_.product();
 
-  edm::ESHandle<TrackerGeometry> tkGeomH_;
-  iSetup.get<TrackerDigiGeometryRecord>().get( tkGeomH_ );
-  const TrackerGeometry* tkGeom = tkGeomH_.product();
-
 
 //sipixel
   edm::ESHandle<TrackerGeometry> geom;
@@ -315,7 +360,7 @@ void RecHitAnalyzer::fillTRKlayersAtEBEE ( const edm::Event& iEvent, const edm::
 
 
   edm::Handle<SiPixelRecHitCollection> recHitColl;
-  iEvent.getByLabel( edm::InputTag("siPixelRecHits") , recHitColl);
+  iEvent.getByToken(siPixelRecHitCollectionT_, recHitColl);
 
   SiPixelRecHitCollection::const_iterator recHitIdIterator      = (recHitColl.product())->begin();
   SiPixelRecHitCollection::const_iterator recHitIdIteratorEnd   = (recHitColl.product())->end();
@@ -342,7 +387,7 @@ void RecHitAnalyzer::fillTRKlayersAtEBEE ( const edm::Event& iEvent, const edm::
         eta = GP.eta();
         if ( std::abs(eta) > 3. ) continue;
         DetId ecalId( spr::findDetIdECAL( caloGeom, eta, phi, false ) );
-        if ( tkId.subdetId() == PixelSubdetector::PixelBarrel )
+        if ( subid == PixelSubdetector::PixelBarrel )
         {
           hBPIX_layers->Fill(layer);
           if ( ecalId.subdetId() == EcalBarrel )
@@ -353,7 +398,7 @@ void RecHitAnalyzer::fillTRKlayersAtEBEE ( const edm::Event& iEvent, const edm::
 
         }
         else 
-          if ( tkId.subdetId() == PixelSubdetector::PixelEndcap )
+          if ( subid == PixelSubdetector::PixelEndcap )
           {
             hFPIX_layers->Fill(layer);
             if ( ecalId.subdetId() == EcalBarrel )
@@ -367,15 +412,11 @@ void RecHitAnalyzer::fillTRKlayersAtEBEE ( const edm::Event& iEvent, const edm::
     }
   }
 
-  std::vector<std::string> collections;
-  collections.push_back("rphiRecHit");
-  collections.push_back("stereoRecHit");
-  collections.push_back("rphiRecHitUnmatched");
-  collections.push_back("stereoRecHitUnmatched");
-  for (unsigned int the_collection=0; the_collection<collections.size();the_collection++)
+
+  for (const auto & itoken: siStripRecHitCollectionT_)
   {
     edm::Handle<SiStripRecHit2DCollection> stripRecHitColl;
-    iEvent.getByLabel( edm::InputTag("siStripMatchedRecHits",collections[the_collection]) , stripRecHitColl);
+    iEvent.getByToken( itoken , stripRecHitColl);
 
     SiStripRecHit2DCollection::const_iterator stripRecHitIdIterator      = (stripRecHitColl.product())->begin();
     SiStripRecHit2DCollection::const_iterator stripRecHitIdIteratorEnd   = (stripRecHitColl.product())->end();
@@ -387,7 +428,7 @@ void RecHitAnalyzer::fillTRKlayersAtEBEE ( const edm::Event& iEvent, const edm::
      DetId detId = DetId(detset.detId()); // Get the Detid object
      unsigned int subid=detId.subdetId(); //subdetector type, barrel=1, fpix=2
      unsigned int layer = getLayer(detId);
-     const StripGeomDetUnit* theGeomDet = dynamic_cast<const StripGeomDetUnit*>( theTracker.idToDet( stripiter->geographicalId() ) );
+     const StripGeomDetUnit* theGeomDet = dynamic_cast<const StripGeomDetUnit*>( theTracker.idToDet( detId ) );
 
      SiStripRecHit2DCollection::DetSet::const_iterator stripiter=detset.begin();
      SiStripRecHit2DCollection::DetSet::const_iterator stripRechitRangeIteratorEnd   = detset.end();
@@ -397,86 +438,124 @@ void RecHitAnalyzer::fillTRKlayersAtEBEE ( const edm::Event& iEvent, const edm::
         {
 
           LocalPoint lp = stripiter->localPosition();
-          LocalError le = stripiter->localPositionError();
           GlobalPoint GP = theGeomDet->surface().toGlobal(Local3DPoint(lp));
+          phi = GP.phi();
+          eta = GP.eta();
+          if ( std::abs(eta) > 3. ) continue;
+          DetId ecalId( spr::findDetIdECAL( caloGeom, eta, phi, false ) );
+
+          if ( subid == StripSubdetector::TOB ) {
+
+            hTOB_layers->Fill(layer);
+
+            if ( ecalId.subdetId() == EcalBarrel )
+              fillTRKatEB( EBDetId(ecalId), layer-1, hTOB_EB, vTOB_EB_ );
+            else if ( ecalId.subdetId() == EcalEndcap )
+              fillTRKatEE( EEDetId(ecalId), layer-1, hTOB_EE, vTOB_EE_ );
+
+          } else if ( subid == StripSubdetector::TEC ) {
+    
+            hTEC_layers->Fill(layer);
+            if ( ecalId.subdetId() == EcalBarrel )
+              fillTRKatEB( EBDetId(ecalId), layer-1, hTEC_EB, vTEC_EB_ );
+            else if ( ecalId.subdetId() == EcalEndcap )
+              fillTRKatEE( EEDetId(ecalId), layer-1, hTEC_EE, vTEC_EE_ );
+
+          } else if ( subid == StripSubdetector::TIB ) {
+    
+            hTIB_layers->Fill(layer);
+            if ( ecalId.subdetId() == EcalBarrel )
+              fillTRKatEB( EBDetId(ecalId), layer-1, hTIB_EB, vTIB_EB_ );
+            else if ( ecalId.subdetId() == EcalEndcap )
+              fillTRKatEE( EEDetId(ecalId), layer-1, hTIB_EE, vTIB_EE_ );
+
+          } else if ( subid == StripSubdetector::TID ) {
+    
+            hTID_layers->Fill(layer);
+            if ( ecalId.subdetId() == EcalBarrel )
+              fillTRKatEB( EBDetId(ecalId), layer-1, hTID_EB, vTID_EB_ );
+            else if ( ecalId.subdetId() == EcalEndcap )
+              fillTRKatEE( EEDetId(ecalId), layer-1, hTID_EE, vTID_EE_ );
+
+          }
         }
       }
     }
   }
 
-  //float maxEta = 0.;
-  for ( TrackingRecHitCollection::const_iterator iRHit = TRKRecHitsH_->begin();
-        iRHit != TRKRecHitsH_->end(); ++iRHit ) {
+  // //float maxEta = 0.;
+  // for ( TrackingRecHitCollection::const_iterator iRHit = TRKRecHitsH_->begin();
+  //       iRHit != TRKRecHitsH_->end(); ++iRHit ) {
 
-    if ( !iRHit->isValid() ) continue;
-    DetId tkId( iRHit->geographicalId() );
-    if ( tkId.det() != DetId::Tracker ) continue;
-    pos = tkGeom->idToDet( tkId )->surface().toGlobal( iRHit->localPosition() );
-    phi = pos.phi();
-    eta = pos.eta();
-    //rho = pos.perp();
-    if ( std::abs(eta) > 3. ) continue;
-    DetId ecalId( spr::findDetIdECAL( caloGeom, eta, phi, false ) );
-    //if (std::abs(eta) > 1.479) std::cout << "eta:" << eta << std::endl;
+  //   if ( !iRHit->isValid() ) continue;
+  //   DetId tkId( iRHit->geographicalId() );
+  //   if ( tkId.det() != DetId::Tracker ) continue;
+  //   pos = tkGeom->idToDet( tkId )->surface().toGlobal( iRHit->localPosition() );
+  //   phi = pos.phi();
+  //   eta = pos.eta();
+  //   //rho = pos.perp();
+  //   if ( std::abs(eta) > 3. ) continue;
+  //   DetId ecalId( spr::findDetIdECAL( caloGeom, eta, phi, false ) );
+  //   //if (std::abs(eta) > 1.479) std::cout << "eta:" << eta << std::endl;
 
-    if ( tkId.subdetId() == StripSubdetector::TOB ) {
+  //   if ( tkId.subdetId() == StripSubdetector::TOB ) {
 
-      layer = TOBDetId( tkId ).layer();
-      hTOB_layers->Fill(layer);
+  //     layer = TOBDetId( tkId ).layer();
+  //     hTOB_layers->Fill(layer);
 
-      if ( ecalId.subdetId() == EcalBarrel )
-        fillTRKatEB( EBDetId(ecalId), layer-1, hTOB_EB, vTOB_EB_ );
-      else if ( ecalId.subdetId() == EcalEndcap )
-        fillTRKatEE( EEDetId(ecalId), layer-1, hTOB_EE, vTOB_EE_ );
+  //     if ( ecalId.subdetId() == EcalBarrel )
+  //       fillTRKatEB( EBDetId(ecalId), layer-1, hTOB_EB, vTOB_EB_ );
+  //     else if ( ecalId.subdetId() == EcalEndcap )
+  //       fillTRKatEE( EEDetId(ecalId), layer-1, hTOB_EE, vTOB_EE_ );
 
-    } else if ( tkId.subdetId() == StripSubdetector::TEC ) {
+  //   } else if ( tkId.subdetId() == StripSubdetector::TEC ) {
     
-      layer = TECDetId( tkId ).wheel();
-      hTEC_layers->Fill(layer);
-      if ( ecalId.subdetId() == EcalBarrel )
-        fillTRKatEB( EBDetId(ecalId), layer-1, hTEC_EB, vTEC_EB_ );
-      else if ( ecalId.subdetId() == EcalEndcap )
-        fillTRKatEE( EEDetId(ecalId), layer-1, hTEC_EE, vTEC_EE_ );
+  //     layer = TECDetId( tkId ).wheel();
+  //     hTEC_layers->Fill(layer);
+  //     if ( ecalId.subdetId() == EcalBarrel )
+  //       fillTRKatEB( EBDetId(ecalId), layer-1, hTEC_EB, vTEC_EB_ );
+  //     else if ( ecalId.subdetId() == EcalEndcap )
+  //       fillTRKatEE( EEDetId(ecalId), layer-1, hTEC_EE, vTEC_EE_ );
 
-    } else if ( tkId.subdetId() == StripSubdetector::TIB ) {
+  //   } else if ( tkId.subdetId() == StripSubdetector::TIB ) {
     
-      layer = TIBDetId( tkId ).layer();
-      hTIB_layers->Fill(layer);
-      if ( ecalId.subdetId() == EcalBarrel )
-        fillTRKatEB( EBDetId(ecalId), layer-1, hTIB_EB, vTIB_EB_ );
-      else if ( ecalId.subdetId() == EcalEndcap )
-        fillTRKatEE( EEDetId(ecalId), layer-1, hTIB_EE, vTIB_EE_ );
+  //     layer = TIBDetId( tkId ).layer();
+  //     hTIB_layers->Fill(layer);
+  //     if ( ecalId.subdetId() == EcalBarrel )
+  //       fillTRKatEB( EBDetId(ecalId), layer-1, hTIB_EB, vTIB_EB_ );
+  //     else if ( ecalId.subdetId() == EcalEndcap )
+  //       fillTRKatEE( EEDetId(ecalId), layer-1, hTIB_EE, vTIB_EE_ );
 
-    } else if ( tkId.subdetId() == StripSubdetector::TID ) {
+  //   } else if ( tkId.subdetId() == StripSubdetector::TID ) {
     
-      layer = TIDDetId( tkId ).wheel();
-      hTID_layers->Fill(layer);
-      if ( ecalId.subdetId() == EcalBarrel )
-        fillTRKatEB( EBDetId(ecalId), layer-1, hTID_EB, vTID_EB_ );
-      else if ( ecalId.subdetId() == EcalEndcap )
-        fillTRKatEE( EEDetId(ecalId), layer-1, hTID_EE, vTID_EE_ );
+  //     layer = TIDDetId( tkId ).wheel();
+  //     hTID_layers->Fill(layer);
+  //     if ( ecalId.subdetId() == EcalBarrel )
+  //       fillTRKatEB( EBDetId(ecalId), layer-1, hTID_EB, vTID_EB_ );
+  //     else if ( ecalId.subdetId() == EcalEndcap )
+  //       fillTRKatEE( EEDetId(ecalId), layer-1, hTID_EE, vTID_EE_ );
 
-    } else if ( tkId.subdetId() == PixelSubdetector::PixelBarrel ) {
+  //   } else if ( tkId.subdetId() == PixelSubdetector::PixelBarrel ) {
     
-      layer = PXBDetId( tkId ).layer();
-      hBPIX_layers->Fill(layer);
-      if ( ecalId.subdetId() == EcalBarrel )
-        fillTRKatEB( EBDetId(ecalId), layer-1, hBPIX_EB, vBPIX_EB_ );
-      else if ( ecalId.subdetId() == EcalEndcap )
-        fillTRKatEE( EEDetId(ecalId), layer-1, hBPIX_EE, vBPIX_EE_ );
+  //     layer = PXBDetId( tkId ).layer();
+  //     hBPIX_layers->Fill(layer);
+  //     if ( ecalId.subdetId() == EcalBarrel )
+  //       fillTRKatEB( EBDetId(ecalId), layer-1, hBPIX_EB, vBPIX_EB_ );
+  //     else if ( ecalId.subdetId() == EcalEndcap )
+  //       fillTRKatEE( EEDetId(ecalId), layer-1, hBPIX_EE, vBPIX_EE_ );
 
-    } else if ( tkId.subdetId() == PixelSubdetector::PixelEndcap ) {
+  //   } else if ( tkId.subdetId() == PixelSubdetector::PixelEndcap ) {
     
-      layer = PXFDetId( tkId ).disk();
-      hFPIX_layers->Fill(layer);
-      if ( ecalId.subdetId() == EcalBarrel )
-        fillTRKatEB( EBDetId(ecalId), layer-1, hFPIX_EB, vFPIX_EB_ );
-      else if ( ecalId.subdetId() == EcalEndcap )
-        fillTRKatEE( EEDetId(ecalId), layer-1, hFPIX_EE, vFPIX_EE_ );
+  //     layer = PXFDetId( tkId ).disk();
+  //     hFPIX_layers->Fill(layer);
+  //     if ( ecalId.subdetId() == EcalBarrel )
+  //       fillTRKatEB( EBDetId(ecalId), layer-1, hFPIX_EB, vFPIX_EB_ );
+  //     else if ( ecalId.subdetId() == EcalEndcap )
+  //       fillTRKatEE( EEDetId(ecalId), layer-1, hFPIX_EE, vFPIX_EE_ );
 
-    }
+  //   }
 
-  } // rechits
-  //std::cout << maxEta << std::endl;
+  // } // rechits
+  // //std::cout << maxEta << std::endl;
 
 } // fillEB()

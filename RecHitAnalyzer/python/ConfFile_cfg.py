@@ -18,9 +18,11 @@ options.parseArguments()
 process = cms.Process("FEVTAnalyzer")
 process.load("FWCore.MessageService.MessageLogger_cfi")
 process.load("Configuration.StandardSequences.GeometryDB_cff")
+# process.load("Configuration.Geometry.GeometryIdeal_cff")
+process.load("Configuration.StandardSequences.MagneticField_38T_cff")
 process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
-process.load("RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi")
-process.load("RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConverter_cfi")
+
+
 #process.load('Configuration.StandardSequences.FrontierConditions_GlobalTag_condDBv2_cff')
 #process.load("Configuration.StandardSequences.GeometryRecoDB_cff")
 #process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi");
@@ -28,6 +30,8 @@ process.load("RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConverter_cfi
 #process.load("Geometry.CaloEventSetup.CaloTopology_cfi");
 process.GlobalTag.globaltag = cms.string('80X_dataRun2_HLT_v12')
 process.es_prefer_GlobalTag = cms.ESPrefer('PoolDBESSource','GlobalTag')
+# process.es_prefer_ZDCGeometryRecord = cms.ESPrefer('ZdcGeometryFromDBEP','')
+# process.es_prefer_hcal = cms.ESPrefer('HcalGeometryFromDBEP','')
 
 process.maxEvents = cms.untracked.PSet( 
     input = cms.untracked.int32(options.maxEvents) 
@@ -40,7 +44,9 @@ process.source = cms.Source("PoolSource",
     , skipEvents = cms.untracked.uint32(options.skipEvents)
     )
 print " >> Loaded",len(options.inputFiles),"input files from list."
-
+process.load("RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi")
+process.load("RecoLocalTracker.SiPixelRecHits.PixelCPEGeneric_cfi")
+process.load("RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConverter_cfi")
 process.load("MLAnalyzer.RecHitAnalyzer.RHAnalyzer_cfi")
 process.fevt.mode = cms.string(options.processMode)
 #process.fevt.mode = cms.string("JetLevel") # for when using crab

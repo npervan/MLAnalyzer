@@ -25,6 +25,13 @@ RecHitAnalyzer::RecHitAnalyzer(const edm::ParameterSet& iConfig)
   HBHERecHitCollectionT_  = consumes<HBHERecHitCollection>(iConfig.getParameter<edm::InputTag>("reducedHBHERecHitCollection"));
   TRKRecHitCollectionT_   = consumes<TrackingRecHitCollection>(iConfig.getParameter<edm::InputTag>("trackRecHitCollection"));
 
+  siPixelRecHitCollectionT_   = consumes<SiPixelRecHitCollection>(iConfig.getParameter<edm::InputTag>("siPixelRecHitCollection"));
+  std::vector<edm::InputTag> rec_hits_tags = iConfig.getParameter<std::vector<edm::InputTag> >("siStripRecHitCollection");
+  for(auto itag : rec_hits_tags) {
+    siStripRecHitCollectionT_.push_back(
+      consumes< SiStripRecHit2DCollection >(itag)
+      );}
+
   genParticleCollectionT_ = consumes<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("genParticleCollection"));
   photonCollectionT_      = consumes<reco::PhotonCollection>(iConfig.getParameter<edm::InputTag>("gedPhotonCollection"));
   jetCollectionT_         = consumes<reco::PFJetCollection>(iConfig.getParameter<edm::InputTag>("ak4PFJetCollection"));
@@ -74,7 +81,7 @@ RecHitAnalyzer::RecHitAnalyzer(const edm::ParameterSet& iConfig)
   branchesTracksAtECALstitched( RHTree, fs);
   branchesPFCandsAtEBEE(RHTree, fs);
   branchesPFCandsAtECALstitched( RHTree, fs);
-  //branchesTRKlayersAtEBEE(RHTree, fs);
+  branchesTRKlayersAtEBEE(RHTree, fs);
   //branchesTRKlayersAtECAL(RHTree, fs);
   //branchesTRKvolumeAtEBEE(RHTree, fs);
   //branchesTRKvolumeAtECAL(RHTree, fs);
@@ -129,7 +136,7 @@ RecHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   fillTRKlayersAtEBEE( iEvent, iSetup );
   //fillTRKlayersAtECAL( iEvent, iSetup );
-  fillTRKvolumeAtEBEE( iEvent, iSetup );
+  //fillTRKvolumeAtEBEE( iEvent, iSetup );
   //fillTRKvolumeAtECAL( iEvent, iSetup );
 
   ////////////// 4-Momenta //////////

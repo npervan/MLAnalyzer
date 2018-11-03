@@ -34,9 +34,23 @@
 #include "DataFormats/SiStripDetId/interface/TIDDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PXBDetId.h"
 #include "DataFormats/SiPixelDetId/interface/PXFDetId.h"
-#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
-#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+
+#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetUnit.h"
+#include "Geometry/TrackerGeometryBuilder/interface/PixelGeomDetType.h"
 #include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetUnit.h"
+#include "Geometry/TrackerGeometryBuilder/interface/StripGeomDetType.h"
+
+#include "Geometry/TrackerGeometryBuilder/interface/TrackerGeometry.h"
+#include "Geometry/CommonTopologies/interface/PixelTopology.h"
+#include "Geometry/CommonTopologies/interface/StripTopology.h"
+#include "Geometry/Records/interface/TrackerDigiGeometryRecord.h"
+
+#include "DataFormats/SiPixelDetId/interface/PixelSubdetector.h"
+#include "DataFormats/SiStripDetId/interface/StripSubdetector.h"
+
+#include "DataFormats/TrackerRecHit2D/interface/SiPixelRecHitCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripMatchedRecHit2DCollection.h"
+#include "DataFormats/TrackerRecHit2D/interface/SiStripRecHit2DCollection.h"
 
 #include "Calibration/IsolatedParticles/interface/DetIdFromEtaPhi.h"
 
@@ -106,6 +120,11 @@ class RecHitAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
     edm::EDGetTokenT<EcalRecHitCollection> EERecHitCollectionT_;
     edm::EDGetTokenT<HBHERecHitCollection> HBHERecHitCollectionT_;
     edm::EDGetTokenT<TrackingRecHitCollection> TRKRecHitCollectionT_;
+
+    edm::EDGetTokenT<SiPixelRecHitCollection> siPixelRecHitCollectionT_;
+    std::vector<edm::EDGetTokenT<SiStripRecHit2DCollection> > siStripRecHitCollectionT_;
+
+
     edm::EDGetTokenT<reco::GenParticleCollection> genParticleCollectionT_;
     edm::EDGetTokenT<reco::PhotonCollection> photonCollectionT_;
     edm::EDGetTokenT<reco::PFJetCollection> jetCollectionT_;
