@@ -162,7 +162,7 @@ class RecHitAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
     void branchesPFCandsAtEBEE   ( TTree*, edm::Service<TFileService>& );
     void branchesPFCandsAtECALstitched   ( TTree*, edm::Service<TFileService>& );
     void branchesTRKlayersAtEBEE( TTree*, edm::Service<TFileService>& );
-    //void branchesTRKlayersAtECAL( TTree*, edm::Service<TFileService>& );
+    void branchesTRKlayersAtECALstitched( TTree*, edm::Service<TFileService>& );
     void branchesTRKvolumeAtEBEE( TTree*, edm::Service<TFileService>& );
     //void branchesTRKvolumeAtECAL( TTree*, edm::Service<TFileService>& );
 
@@ -179,7 +179,7 @@ class RecHitAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
     void fillPFCandsAtEBEE   ( const edm::Event&, const edm::EventSetup& );
     void fillPFCandsAtECALstitched   ( const edm::Event&, const edm::EventSetup& );
     void fillTRKlayersAtEBEE( const edm::Event&, const edm::EventSetup& );
-    //void fillTRKlayersAtECAL( const edm::Event&, const edm::EventSetup& );
+    void fillTRKlayersAtECALstitched( const edm::Event&, const edm::EventSetup& );
     void fillTRKvolumeAtEBEE( const edm::Event&, const edm::EventSetup& );
     //void fillTRKvolumeAtECAL( const edm::Event&, const edm::EventSetup& );
 

@@ -241,56 +241,7 @@ void fillTRKatEE ( EEDetId eeId, int iL, TH2F *hTRK_EE[][nEE], std::vector<float
 }
 
 
-unsigned int getLayer(const DetId& detid)
-{
-
-  unsigned int subid=detid.subdetId();
-
-          switch(subid)
-          {
-            case 1://BPIX
-            {
-              PXBDetId pdetId = PXBDetId(detid);
-              return pdetId.layer();
-            }
-
-            case 2://FPIX
-            {
-              PXFDetId pdetId = PXFDetId(detid.rawId());
-              return pdetId.disk();
-            }
-
-            case 3://TIB
-            {
-              TIBDetId pdetId = TIBDetId(detid);
-              return pdetId.layer();
-            }
-            break;
-
-            case 4://TID
-            {
-              TIDDetId pdetId = TIDDetId(detid);
-              return pdetId.wheel();
-            }
-            break;
-
-            case 5://TOB
-            {
-              TOBDetId pdetId = TOBDetId(detid);
-              return pdetId.layer();
-            }
-            break;
-
-            case 6://TEC
-            {
-              TECDetId pdetId = TECDetId(detid);
-              return pdetId.wheel();
-            }
-            break;
-          }
-          return 999;
-
-}
+unsigned int getLayer(const DetId& detid);
 
 
 // Fill TRK rechits at EB/EE ______________________________________________________________//
@@ -385,7 +336,7 @@ void RecHitAnalyzer::fillTRKlayersAtEBEE ( const edm::Event& iEvent, const edm::
         GlobalPoint GP = theGeomDet->surface().toGlobal(Local3DPoint(lp));
         phi = GP.phi();
         eta = GP.eta();
-        if ( std::abs(eta) > 3. ) continue;
+        //if ( std::abs(eta) > 3. ) continue;
         DetId ecalId( spr::findDetIdECAL( caloGeom, eta, phi, false ) );
         if ( subid == PixelSubdetector::PixelBarrel )
         {
@@ -441,7 +392,7 @@ void RecHitAnalyzer::fillTRKlayersAtEBEE ( const edm::Event& iEvent, const edm::
           GlobalPoint GP = theGeomDet->surface().toGlobal(Local3DPoint(lp));
           phi = GP.phi();
           eta = GP.eta();
-          if ( std::abs(eta) > 3. ) continue;
+          //if ( std::abs(eta) > 3. ) continue;
           DetId ecalId( spr::findDetIdECAL( caloGeom, eta, phi, false ) );
 
           if ( subid == StripSubdetector::TOB ) {
