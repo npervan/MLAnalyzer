@@ -82,7 +82,7 @@ RecHitAnalyzer::RecHitAnalyzer(const edm::ParameterSet& iConfig)
   branchesPFCandsAtEBEE(RHTree, fs);
   branchesPFCandsAtECALstitched( RHTree, fs);
   branchesTRKlayersAtEBEE(RHTree, fs);
-  //branchesTRKlayersAtECAL(RHTree, fs);
+  branchesTRKlayersAtECALstitched(RHTree, fs);
   //branchesTRKvolumeAtEBEE(RHTree, fs);
   //branchesTRKvolumeAtECAL(RHTree, fs);
 
@@ -135,7 +135,7 @@ RecHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   fillPFCandsAtECALstitched( iEvent, iSetup );
 
   fillTRKlayersAtEBEE( iEvent, iSetup );
-  //fillTRKlayersAtECAL( iEvent, iSetup );
+  fillTRKlayersAtECALstitched( iEvent, iSetup );
   //fillTRKvolumeAtEBEE( iEvent, iSetup );
   //fillTRKvolumeAtECAL( iEvent, iSetup );
 

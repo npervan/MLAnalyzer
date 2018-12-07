@@ -7,7 +7,9 @@ cfg='RecHitAnalyzer/python/ConfFile_cfg.py'
 #inputFiles_='/store/user/johnda/AODSIM/Py8PtGun_bb_noPU_AODSIM/180731_210318/0000/step_AODSIM_1.root'
 #inputFiles_='/store/user/johnda/AODSIM/Py8PtGun_bb_noPU_AODSIM/180731_210318/0000/step_AODSIM_2.root'
 #inputFiles_='file:/eos/uscms/store/group/lpcml/QCDToGG_Pt_80_120_13TeV_TuneCUETP8M1_noPU_AODSIM/180809_215549/0000/step_full_1.root'
-inputFiles_='file:../step_full_3.root'
+
+#inputFiles_='file:../step_full_3.root'
+inputFiles_='root://cmseos.fnal.gov//store/user/eusai/phase2.root'
 
 maxEvents_=-1
 skipEvents_=0#
