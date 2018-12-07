@@ -16,10 +16,11 @@ fevt = cms.EDAnalyzer('RecHitAnalyzer'
     , trackRecHitCollection = cms.InputTag('generalTracks')
     , siPixelRecHitCollection = cms.InputTag('siPixelRecHits')
     , siStripRecHitCollection =  cms.VInputTag(
-    cms.InputTag('siStripMatchedRecHits:rphiRecHit'),
-    cms.InputTag('siStripMatchedRecHits:stereoRecHit'),
-    cms.InputTag('siStripMatchedRecHits:rphiRecHitUnmatched'),
-    cms.InputTag('siStripMatchedRecHits:stereoRecHitUnmatched')
+    cms.InputTag('siPhase2RecHits')
+    # cms.InputTag('siStripMatchedRecHits:rphiRecHit'),
+    # cms.InputTag('siStripMatchedRecHits:stereoRecHit'),
+    # cms.InputTag('siStripMatchedRecHits:rphiRecHitUnmatched'),
+    # cms.InputTag('siStripMatchedRecHits:stereoRecHitUnmatched')
     )
     , trackCollection = cms.InputTag("generalTracks")
     , pfCollection = cms.InputTag("particleFlow")

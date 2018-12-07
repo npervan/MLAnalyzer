@@ -28,7 +28,7 @@ process.load("Configuration.StandardSequences.FrontierConditions_GlobalTag_cff")
 #process.load("Geometry.CMSCommonData.cmsIdealGeometryXML_cfi");
 #process.load("Geometry.CaloEventSetup.CaloGeometry_cfi");
 #process.load("Geometry.CaloEventSetup.CaloTopology_cfi");
-process.GlobalTag.globaltag = cms.string('80X_dataRun2_HLT_v12')
+process.GlobalTag.globaltag = cms.string('93X_upgrade2023_realistic_v2')
 process.es_prefer_GlobalTag = cms.ESPrefer('PoolDBESSource','GlobalTag')
 # process.es_prefer_ZDCGeometryRecord = cms.ESPrefer('ZdcGeometryFromDBEP','')
 # process.es_prefer_hcal = cms.ESPrefer('HcalGeometryFromDBEP','')
@@ -46,7 +46,8 @@ process.source = cms.Source("PoolSource",
 print " >> Loaded",len(options.inputFiles),"input files from list."
 process.load("RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi")
 process.load("RecoLocalTracker.SiPixelRecHits.PixelCPEGeneric_cfi")
-process.load("RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConverter_cfi")
+# process.load("RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConverter_cfi")
+process.load("RecoLocalTracker.Phase2TrackerRecHits.Phase2TrackerRecHits_cfi.py")
 process.load("MLAnalyzer.RecHitAnalyzer.RHAnalyzer_cfi")
 process.fevt.mode = cms.string(options.processMode)
 #process.fevt.mode = cms.string("JetLevel") # for when using crab
