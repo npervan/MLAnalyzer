@@ -43,6 +43,10 @@ RecHitAnalyzer::RecHitAnalyzer(const edm::ParameterSet& iConfig)
   mode_      = iConfig.getParameter<std::string>("mode");
   minJetPt_  = iConfig.getParameter<double>("minJetPt");
   maxJetEta_ = iConfig.getParameter<double>("maxJetEta");
+
+  granularityMultiPhi  = iConfig.getParameter<int>("granularityMultiPhi");
+  granularityMultiEta  = iConfig.getParameter<int>("granularityMultiEta");
+
   std::cout << " >> Mode set to " << mode_ << std::endl;
   if ( mode_ == "JetLevel" ) {
     doJets_ = true;
@@ -79,6 +83,7 @@ RecHitAnalyzer::RecHitAnalyzer(const edm::ParameterSet& iConfig)
   branchesHCALatEBEE   ( RHTree, fs );
   branchesTracksAtEBEE(RHTree, fs);
   branchesTracksAtECALstitched( RHTree, fs);
+  branchesTracksAtECALadjustable( RHTree, fs);
   branchesPFCandsAtEBEE(RHTree, fs);
   branchesPFCandsAtECALstitched( RHTree, fs);
   branchesTRKlayersAtEBEE(RHTree, fs);
@@ -131,6 +136,7 @@ RecHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   fillHCALatEBEE( iEvent, iSetup );
   fillTracksAtEBEE( iEvent, iSetup );
   fillTracksAtECALstitched( iEvent, iSetup );
+  fillTracksAtECALadjustable( iEvent, iSetup );
   fillPFCandsAtEBEE( iEvent, iSetup );
   fillPFCandsAtECALstitched( iEvent, iSetup );
 

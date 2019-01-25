@@ -159,6 +159,7 @@ class RecHitAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
     void branchesHCALatEBEE     ( TTree*, edm::Service<TFileService>& );
     void branchesTracksAtEBEE   ( TTree*, edm::Service<TFileService>& );
     void branchesTracksAtECALstitched   ( TTree*, edm::Service<TFileService>& );
+    void branchesTracksAtECALadjustable   ( TTree*, edm::Service<TFileService>& );
     void branchesPFCandsAtEBEE   ( TTree*, edm::Service<TFileService>& );
     void branchesPFCandsAtECALstitched   ( TTree*, edm::Service<TFileService>& );
     void branchesTRKlayersAtEBEE( TTree*, edm::Service<TFileService>& );
@@ -176,6 +177,7 @@ class RecHitAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
     void fillHCALatEBEE     ( const edm::Event&, const edm::EventSetup& );
     void fillTracksAtEBEE   ( const edm::Event&, const edm::EventSetup& );
     void fillTracksAtECALstitched   ( const edm::Event&, const edm::EventSetup& );
+    void fillTracksAtECALadjustable   ( const edm::Event&, const edm::EventSetup& );
     void fillPFCandsAtEBEE   ( const edm::Event&, const edm::EventSetup& );
     void fillPFCandsAtECALstitched   ( const edm::Event&, const edm::EventSetup& );
     void fillTRKlayersAtEBEE( const edm::Event&, const edm::EventSetup& );
@@ -201,6 +203,13 @@ class RecHitAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
     void fillEvtSel_jet_dijet_gg_qq( const edm::Event&, const edm::EventSetup& );
 
     int nTotal, nPassed;
+
+    int granularityMultiPhi;
+    int granularityMultiEta;
+    const int granularityMultiECAL=5;
+    std::vector<double> adjEtaBins;
+    std::vector<double> adjPhiBins;
+
 
 }; // class RecHitAnalyzer
 
