@@ -3,8 +3,8 @@
 // Fill Tracks into stitched EEm_EB_EEp image //////////////////////
 // Store all Track positions into a stitched EEm_EB_EEp image 
 
-// TH2F *hEvt_EE_tracksPt[nEE];
-// TH2F *hEvt_EE_tracksQPt[nEE];
+TH2F *hEvt_Adj_tracksPt;
+TH2F *hEvt_Adj_tracksQPt;
 TProfile2D *hECALadj_tracks;
 TProfile2D *hECALadj_tracksPt;
 TProfile2D *hECALadj_tracksQPt;
@@ -39,24 +39,47 @@ void RecHitAnalyzer::branchesTracksAtECALadjustable ( TTree* tree, edm::Service<
   // hEvt_EE_tracksQPt[1] = new TH2F("evt_EEp_tracksQPt", "qxPt(i#phi,i#eta);i#phi;i#eta",
   //     EB_IPHI_MAX, -TMath::Pi(), TMath::Pi(),
   //     5*(HBHE_IETA_MAX_HE-1-HBHE_IETA_MAX_EB), eta_bins_EEp );
+// static const int HBHE_IPHI_NUM = hcaldqm::constants::IPHI_NUM;//72;
+// static const int HBHE_IPHI_MIN = hcaldqm::constants::IPHI_MIN;//1;
+// static const int HBHE_IPHI_MAX = hcaldqm::constants::IPHI_MAX;//72;
+// static const int EB_IPHI_MIN = EBDetId::MIN_IPHI;//1;
+// static const int EB_IPHI_MAX = EBDetId::MAX_IPHI;//360;
 
-  int eta_bins_HBHE_size = 2*(hcaldqm::constants::IETA_MAX_HE-1)+1
+  int eta_nbins_HBHE = 2*(hcaldqm::constants::IETA_MAX_HE-1);
+  //int eta_bins_HBHE_size = 2*(hcaldqm::constants::IETA_MAX_HE-1)+1;
   int totalMultiEta = granularityMultiEta * granularityMultiECAL;
-  totalMultiEta * ( eta_bins_HBHE_size - 1 ) + 1
-  granularityMultiEta * granularityMultiECAL * ( eta_bins_HBHE_size - 1 ) + 1
-  granularityMultiEta * granularityMultiECAL * 2 * (hcaldqm::constants::IETA_MAX_HE - 1 ) + 1
-  for (int i=0; i<eta_bins_HBHE_size-1; i++)
+  // totalMultiEta * ( eta_bins_HBHE_size - 1 ) + 1
+  // granularityMultiEta * granularityMultiECAL * ( eta_bins_HBHE_size - 1 ) + 1
+  // granularityMultiEta * granularityMultiECAL * 2 * (hcaldqm::constants::IETA_MAX_HE - 1 ) + 1
+  for (int i=0; i<eta_nbins_HBHE; i++)
   {
-    adjEtaBins.push_back(eta_bins_HBHE[i]);
-    eta_bins_HBHE[i+1]-eta_bins_HBHE[i]
+    //adjEtaBins.push_back(eta_bins_HBHE[i]);
+    double step=(eta_bins_HBHE[i+1]-eta_bins_HBHE[i])/totalMultiEta;
+    for (int j=0; j<totalMultiEta; j++)
+    {
+      adjEtaBins.push_back(eta_bins_HBHE[i]+step*j);
+    }
   }
-  adjEtaBins.push_back(eta_bins_HBHE[eta_bins_HBHE_size-1]);
+  adjEtaBins.push_back(eta_bins_HBHE[eta_nbins_HBHE]);
 
-  static const double eta_bins_HBHE[2*(hcaldqm::constants::IETA_MAX_HE-1)+1] =
-                  {-3.000, -2.650, -2.500, -2.322, -2.172, -2.043, -1.930, -1.830, -1.740, -1.653, -1.566, -1.479, -1.392, -1.305,
-                   -1.218, -1.131, -1.044, -0.957, -0.870, -0.783, -0.695, -0.609, -0.522, -0.435, -0.348, -0.261, -0.174, -0.087, 0.000,
-                    0.087,  0.174,  0.261,  0.348,  0.435,  0.522,  0.609,  0.695,  0.783,  0.870,  0.957,  1.044,  1.131,  1.218,
-                    1.305,  1.392,  1.479,  1.566,  1.653,  1.740,  1.830,  1.930,  2.043,  2.172,  2.322,  2.500,  2.650,  3.000}; // 57
+  //int totalMultiPhi = granularityMultiPhi * granularityMultiECAL;
+  totalEtaBins = totalMultiEta*(eta_nbins_HBHE);
+  totalPhiBins = granularityMultiPhi * granularityMultiECAL*HBHE_IPHI_NUM;
+  //double phi_step=2*TMath::Pi()/(totalMultiPhi*HBHE_IPHI_NUM);
+
+  //intermediate histograms
+  hEvt_Adj_tracksPt = new TH2F("evt_Adj_tracksPt", "Pt(#phi,#eta);#phi;#eta",
+       totalPhiBins, -TMath::Pi(), TMath::Pi(),
+       adjEtaBins.size()-1, &adjEtaBins[0] );
+  hEvt_Adj_tracksQPt = new TH2F("evt_Adj_tracksQPt", "qxPt(#phi,#eta);#phi;#eta",
+       totalPhiBins, -TMath::Pi(), TMath::Pi(),
+       adjEtaBins.size()-1, &adjEtaBins[0] );
+
+  // static const double eta_bins_HBHE[2*(hcaldqm::constants::IETA_MAX_HE-1)+1] =
+  //                 {-3.000, -2.650, -2.500, -2.322, -2.172, -2.043, -1.930, -1.830, -1.740, -1.653, -1.566, -1.479, -1.392, -1.305,
+  //                  -1.218, -1.131, -1.044, -0.957, -0.870, -0.783, -0.695, -0.609, -0.522, -0.435, -0.348, -0.261, -0.174, -0.087, 0.000,
+  //                   0.087,  0.174,  0.261,  0.348,  0.435,  0.522,  0.609,  0.695,  0.783,  0.870,  0.957,  1.044,  1.131,  1.218,
+  //                   1.305,  1.392,  1.479,  1.566,  1.653,  1.740,  1.830,  1.930,  2.043,  2.172,  2.322,  2.500,  2.650,  3.000}; // 57
   // hEvt_EE_energy[0] = new TH2F("evt_EEm_energy", "E(i#phi,i#eta);i#phi;i#eta",
   //     EB_IPHI_MAX, -TMath::Pi(), TMath::Pi(),
   //     5*(HBHE_IETA_MAX_HE-1-HBHE_IETA_MAX_EB), eta_bins_EEm );
@@ -73,17 +96,17 @@ void RecHitAnalyzer::branchesTracksAtECALadjustable ( TTree* tree, edm::Service<
 
 
   // Histograms for monitoring
-  hECALadj_tracks = fs->make<TProfile2D>("ECALadj_tracks", "E(i#phi,i#eta);i#phi;i#eta",
-      EB_IPHI_MAX,    EB_IPHI_MIN-1, EB_IPHI_MAX,
-      2*ECAL_IETA_MAX_EXT, -ECAL_IETA_MAX_EXT,   ECAL_IETA_MAX_EXT );
+  hECALadj_tracks = fs->make<TProfile2D>("ECALadj_tracks", "E(#phi,#eta);#phi;#eta",
+       totalPhiBins, -TMath::Pi(), TMath::Pi(),
+       adjEtaBins.size()-1, &adjEtaBins[0] );
 
-  hECALadj_tracksPt = fs->make<TProfile2D>("ECALadj_tracksPt", "E(i#phi,i#eta);i#phi;i#eta",
-      EB_IPHI_MAX,    EB_IPHI_MIN-1, EB_IPHI_MAX,
-      2*ECAL_IETA_MAX_EXT, -ECAL_IETA_MAX_EXT,   ECAL_IETA_MAX_EXT );
+  hECALadj_tracksPt = fs->make<TProfile2D>("ECALadj_tracksPt", "E(#phi,#eta);#phi;#eta",
+       totalPhiBins, -TMath::Pi(), TMath::Pi(),
+       adjEtaBins.size()-1, &adjEtaBins[0] );
 
-  hECALadj_tracksQPt = fs->make<TProfile2D>("ECALadj_tracksQPt", "qxPt(i#phi,i#eta);i#phi;i#eta",
-      EB_IPHI_MAX,    EB_IPHI_MIN-1, EB_IPHI_MAX,
-      2*ECAL_IETA_MAX_EXT, -ECAL_IETA_MAX_EXT,   ECAL_IETA_MAX_EXT );
+  hECALadj_tracksQPt = fs->make<TProfile2D>("ECALadj_tracksQPt", "qxPt(#phi,#eta);#phi;#eta",
+       totalPhiBins, -TMath::Pi(), TMath::Pi(),
+       adjEtaBins.size()-1, &adjEtaBins[0] );
 
 } // branchesTracksAtECALadjustable()
 
@@ -125,16 +148,21 @@ void RecHitAnalyzer::branchesTracksAtECALadjustable ( TTree* tree, edm::Service<
 // Fill stitched EE-, EB, EE+ rechits ________________________________________________________//
 void RecHitAnalyzer::fillTracksAtECALadjustable ( const edm::Event& iEvent, const edm::EventSetup& iSetup ) {
 
-  int iphi_, ieta_, iz_, idx_;
-  int ieta_global, ieta_signed;
-  int ieta_global_offset, ieta_signed_offset;
-  float eta, phi, trackPt_, trackQPt_;
-  GlobalPoint pos;
+  vECAL_tracksPt_.assign( totalEtaBins*totalPhiBins, 0. );
+  vECAL_tracksQPt_.assign( totalEtaBins*totalPhiBins, 0. );
+  hEvt_Adj_tracksPt->Reset();
+  hEvt_Adj_tracksQPt->Reset();
 
-  vECAL_tracksPt_.assign( 2*ECAL_IETA_MAX_EXT*EB_IPHI_MAX, 0. );
-  vECAL_tracksQPt_.assign( 2*ECAL_IETA_MAX_EXT*EB_IPHI_MAX, 0. );
-  for ( int iz(0); iz < nEE; ++iz ) hEvt_EE_tracksPt[iz]->Reset();
-  for ( int iz(0); iz < nEE; ++iz ) hEvt_EE_tracksQPt[iz]->Reset();
+  // int iphi_, ieta_, iz_, idx_;
+  // int ieta_global, ieta_signed;
+  // int ieta_global_offset, ieta_signed_offset;
+  float eta, phi, trackPt_, trackQPt_;
+  // GlobalPoint pos;
+
+  // vECAL_tracksPt_.assign( 2*ECAL_IETA_MAX_EXT*EB_IPHI_MAX, 0. );
+  // vECAL_tracksQPt_.assign( 2*ECAL_IETA_MAX_EXT*EB_IPHI_MAX, 0. );
+  // for ( int iz(0); iz < nEE; ++iz ) hEvt_EE_tracksPt[iz]->Reset();
+  // for ( int iz(0); iz < nEE; ++iz ) hEvt_EE_tracksQPt[iz]->Reset();
 
   edm::Handle<EcalRecHitCollection> EBRecHitsH_;
   iEvent.getByToken( EBRecHitCollectionT_, EBRecHitsH_ );
@@ -152,62 +180,80 @@ void RecHitAnalyzer::fillTracksAtECALadjustable ( const edm::Event& iEvent, cons
   for ( reco::TrackCollection::const_iterator iTk = tracksH_->begin();
         iTk != tracksH_->end(); ++iTk ) {
     if ( !(iTk->quality(tkQt_)) ) continue;
-    eta = iTk->eta();
-    phi = iTk->phi();
-    if ( std::abs(eta) > 3. ) continue;
-    DetId id( spr::findDetIdECAL( caloGeom, eta, phi, false ) );
-    if ( id.subdetId() == EcalBarrel ) continue;
-    if ( id.subdetId() == EcalEndcap ) {
-      iz_ = (eta > 0.) ? 1 : 0;
-      // Fill intermediate helper histogram by eta,phi
-      hEvt_EE_tracksPt[iz_]->Fill( phi, eta, iTk->pt() );
-      hEvt_EE_tracksQPt[iz_]->Fill( phi, eta, iTk->charge()*iTk->pt() );
-    }
+
+    eta =       iTk->eta();
+    phi =       iTk->phi();
+    trackPt_ =  iTk->pt();
+    trackQPt_ = iTk->charge()*iTk->pt();
+
+    hEvt_Adj_tracksPt->Fill(  phi, eta, trackPt_ );
+    hEvt_Adj_tracksQPt->Fill( phi, eta, trackQPt_ );
+
+    hECALadj_tracks->Fill(    phi, eta, 1. );
+    hECALadj_tracksPt->Fill(  phi, eta, trackPt_ );
+    hECALadj_tracksQPt->Fill( phi, eta, trackQPt_ );
   } // tracks
 
 
-  // Map EE-(phi,eta) to bottom part of ECAL(iphi,ieta)
-  ieta_global_offset = 0;
-  ieta_signed_offset = -ECAL_IETA_MAX_EXT;
-  fillTracksAtECAL_with_EEproj( hEvt_EE_tracksPt[0], hEvt_EE_tracksQPt[0], ieta_global_offset, ieta_signed_offset );
-
-  // Fill middle part of ECAL(iphi,ieta) with the EB rechits.
-  ieta_global_offset = 55;
-
-  for ( reco::TrackCollection::const_iterator iTk = tracksH_->begin();
-        iTk != tracksH_->end(); ++iTk ) { 
-    if ( !(iTk->quality(tkQt_)) ) continue;
-    eta = iTk->eta();
-    phi = iTk->phi();
-    trackPt_ = iTk->pt();
-    trackQPt_ = (iTk->charge()*iTk->pt());
-    if ( std::abs(eta) > 3. ) continue;
-    DetId id( spr::findDetIdECAL( caloGeom, eta, phi, false ) );
-    if ( id.subdetId() == EcalEndcap ) continue;
-    if ( id.subdetId() == EcalBarrel ) { 
-      EBDetId ebId( id );
-      iphi_ = ebId.iphi() - 1;
-      ieta_ = ebId.ieta() > 0 ? ebId.ieta()-1 : ebId.ieta();
-      if ( trackPt_ == 0. ) continue;
-      // Fill vector for image
-      ieta_signed = ieta_;
-      ieta_global = ieta_ + EB_IETA_MAX + ieta_global_offset;
-      idx_ = ieta_global*EB_IPHI_MAX + iphi_; 
-      vECAL_tracksPt_[idx_] += trackPt_;
-      vECAL_tracksQPt_[idx_] += trackQPt_;
-      // Fill histogram for monitoring
-      hECAL_tracks->Fill( iphi_, ieta_signed, 1. );
-      hECAL_tracksPt->Fill( iphi_, ieta_signed, trackPt_ );
-      hECAL_tracksQPt->Fill( iphi_, ieta_signed, trackQPt_ );
-    }
-
-  } // EB Tracks
+  // for ( reco::TrackCollection::const_iterator iTk = tracksH_->begin();
+  //       iTk != tracksH_->end(); ++iTk ) {
+  //   if ( !(iTk->quality(tkQt_)) ) continue;
+  //   eta = iTk->eta();
+  //   phi = iTk->phi();
+  //   if ( std::abs(eta) > 3. ) continue;
+  //   DetId id( spr::findDetIdECAL( caloGeom, eta, phi, false ) );
+  //   if ( id.subdetId() == EcalBarrel ) continue;
+  //   if ( id.subdetId() == EcalEndcap ) {
+  //     iz_ = (eta > 0.) ? 1 : 0;
+  //     // Fill intermediate helper histogram by eta,phi
+  //     hEvt_EE_tracksPt[iz_]->Fill( phi, eta, iTk->pt() );
+  //     hEvt_EE_tracksQPt[iz_]->Fill( phi, eta, iTk->charge()*iTk->pt() );
+  //   }
+  // } // tracks
 
 
+  // // Map EE-(phi,eta) to bottom part of ECAL(iphi,ieta)
+  // ieta_global_offset = 0;
+  // ieta_signed_offset = -ECAL_IETA_MAX_EXT;
+  // fillTracksAtECAL_with_EEproj( hEvt_EE_tracksPt[0], hEvt_EE_tracksQPt[0], ieta_global_offset, ieta_signed_offset );
 
-  // Map EE+(phi,eta) to upper part of ECAL(iphi,ieta)
-  ieta_global_offset = ECAL_IETA_MAX_EXT + EB_IETA_MAX;
-  ieta_signed_offset = EB_IETA_MAX;
-  fillTracksAtECAL_with_EEproj( hEvt_EE_tracksPt[1], hEvt_EE_tracksQPt[1], ieta_global_offset, ieta_signed_offset );
+  // // Fill middle part of ECAL(iphi,ieta) with the EB rechits.
+  // ieta_global_offset = 55;
+
+  // for ( reco::TrackCollection::const_iterator iTk = tracksH_->begin();
+  //       iTk != tracksH_->end(); ++iTk ) { 
+  //   if ( !(iTk->quality(tkQt_)) ) continue;
+  //   eta = iTk->eta();
+  //   phi = iTk->phi();
+  //   trackPt_ = iTk->pt();
+  //   trackQPt_ = (iTk->charge()*iTk->pt());
+  //   if ( std::abs(eta) > 3. ) continue;
+  //   DetId id( spr::findDetIdECAL( caloGeom, eta, phi, false ) );
+  //   if ( id.subdetId() == EcalEndcap ) continue;
+  //   if ( id.subdetId() == EcalBarrel ) { 
+  //     EBDetId ebId( id );
+  //     iphi_ = ebId.iphi() - 1;
+  //     ieta_ = ebId.ieta() > 0 ? ebId.ieta()-1 : ebId.ieta();
+  //     if ( trackPt_ == 0. ) continue;
+  //     // Fill vector for image
+  //     ieta_signed = ieta_;
+  //     ieta_global = ieta_ + EB_IETA_MAX + ieta_global_offset;
+  //     idx_ = ieta_global*EB_IPHI_MAX + iphi_; 
+  //     vECAL_tracksPt_[idx_] += trackPt_;
+  //     vECAL_tracksQPt_[idx_] += trackQPt_;
+  //     // Fill histogram for monitoring
+  //     hECAL_tracks->Fill( iphi_, ieta_signed, 1. );
+  //     hECAL_tracksPt->Fill( iphi_, ieta_signed, trackPt_ );
+  //     hECAL_tracksQPt->Fill( iphi_, ieta_signed, trackQPt_ );
+  //   }
+
+  // } // EB Tracks
+
+
+
+  // // Map EE+(phi,eta) to upper part of ECAL(iphi,ieta)
+  // ieta_global_offset = ECAL_IETA_MAX_EXT + EB_IETA_MAX;
+  // ieta_signed_offset = EB_IETA_MAX;
+  // fillTracksAtECAL_with_EEproj( hEvt_EE_tracksPt[1], hEvt_EE_tracksQPt[1], ieta_global_offset, ieta_signed_offset );
 
 } // fillTracksAtECALadjustable()

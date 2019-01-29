@@ -209,6 +209,8 @@ class RecHitAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
     const int granularityMultiECAL=5;
     std::vector<double> adjEtaBins;
     std::vector<double> adjPhiBins;
+    int totalEtaBins;// = totalMultiEta*(eta_nbins_HBHE);
+    int totalPhiBins;// = granularityMultiPhi * granularityMultiECAL*HBHE_IPHI_NUM;
 
 
 }; // class RecHitAnalyzer
