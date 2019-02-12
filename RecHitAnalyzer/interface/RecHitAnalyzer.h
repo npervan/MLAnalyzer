@@ -18,6 +18,7 @@
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
 #include "FWCore/Framework/interface/one/EDAnalyzer.h"
+#include "FWCore/Framework/interface/ESHandle.h"
 //#include "FWCore/Framework/interface/EDAnalyzer.h"
 
 #include "DataFormats/EcalRecHit/interface/EcalRecHitCollections.h"
@@ -58,6 +59,10 @@
 //#include "DataFormats/HcalDetId/interface/HcalDetId.h"
 //#include "DataFormats/HcalDetId/interface/HcalElectronicsId.h"
 #include "DQM/HcalCommon/interface/Constants.h"
+
+#include "MagneticField/Engine/interface/MagneticField.h"
+#include "MagneticField/Records/interface/IdealMagneticFieldRecord.h"
+#include "Calibration/IsolatedParticles/interface/CaloPropagateTrack.h"
 
 #include "FWCore/Framework/interface/Event.h"
 #include "FWCore/Framework/interface/MakerMacros.h"

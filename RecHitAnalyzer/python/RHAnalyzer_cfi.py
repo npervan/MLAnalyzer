@@ -30,6 +30,6 @@ fevt = cms.EDAnalyzer('RecHitAnalyzer'
     , minJetPt = cms.double(20.)
     , maxJetEta = cms.double(2.4)
 
-    , granularityMultiPhi = cms.double(5)
-    , granularityMultiEta = cms.double(5)
+    , granularityMultiPhi = cms.int32(1)
+    , granularityMultiEta = cms.int32(1)
     )

@@ -5,9 +5,15 @@
 
 TH2F *hEvt_Adj_tracksPt;
 TH2F *hEvt_Adj_tracksQPt;
+TH1F *hEvt_Adj;
 TProfile2D *hECALadj_tracks;
 TProfile2D *hECALadj_tracksPt;
 TProfile2D *hECALadj_tracksQPt;
+
+TProfile2D *hECALadj_tracks_id;
+TProfile2D *hECALadj_tracksPt_id;
+TProfile2D *hECALadj_tracksQPt_id;
+
 std::vector<float> vECALadj_tracksPt_;
 std::vector<float> vECALadj_tracksQPt_;
 
@@ -20,8 +26,8 @@ void RecHitAnalyzer::branchesTracksAtECALadjustable ( TTree* tree, edm::Service<
   tree->Branch("ECALadj_tracksPt",    &vECALadj_tracksPt_);
   tree->Branch("ECALadj_tracksQPt",    &vECALadj_tracksQPt_);
 
-    int granularityMultiPhi;
-    int granularityMultiEta;
+    // int granularityMultiPhi;
+    // int granularityMultiEta;
     std::vector<double> adjEtaBins;
     std::vector<double> adjPhiBins;
 
@@ -74,6 +80,8 @@ void RecHitAnalyzer::branchesTracksAtECALadjustable ( TTree* tree, edm::Service<
   hEvt_Adj_tracksQPt = new TH2F("evt_Adj_tracksQPt", "qxPt(#phi,#eta);#phi;#eta",
        totalPhiBins, -TMath::Pi(), TMath::Pi(),
        adjEtaBins.size()-1, &adjEtaBins[0] );
+  hEvt_Adj = new TH1F("evt_Adj", "",
+       adjEtaBins.size()-1, &adjEtaBins[0] );
 
   // static const double eta_bins_HBHE[2*(hcaldqm::constants::IETA_MAX_HE-1)+1] =
   //                 {-3.000, -2.650, -2.500, -2.322, -2.172, -2.043, -1.930, -1.830, -1.740, -1.653, -1.566, -1.479, -1.392, -1.305,
@@ -96,17 +104,32 @@ void RecHitAnalyzer::branchesTracksAtECALadjustable ( TTree* tree, edm::Service<
 
 
   // Histograms for monitoring
-  hECALadj_tracks = fs->make<TProfile2D>("ECALadj_tracks", "E(#phi,#eta);#phi;#eta",
-       totalPhiBins, -TMath::Pi(), TMath::Pi(),
-       adjEtaBins.size()-1, &adjEtaBins[0] );
+  // hECALadj_tracks = fs->make<TProfile2D>("ECALadj_tracks", "E(#phi,#eta);#phi;#eta",
+  //      totalPhiBins, -TMath::Pi(), TMath::Pi(),
+  //      adjEtaBins.size()-1, &adjEtaBins[0] );
 
-  hECALadj_tracksPt = fs->make<TProfile2D>("ECALadj_tracksPt", "E(#phi,#eta);#phi;#eta",
-       totalPhiBins, -TMath::Pi(), TMath::Pi(),
-       adjEtaBins.size()-1, &adjEtaBins[0] );
+  // hECALadj_tracksPt = fs->make<TProfile2D>("ECALadj_tracksPt", "E(#phi,#eta);#phi;#eta",
+  //      totalPhiBins, -TMath::Pi(), TMath::Pi(),
+  //      adjEtaBins.size()-1, &adjEtaBins[0] );
 
-  hECALadj_tracksQPt = fs->make<TProfile2D>("ECALadj_tracksQPt", "qxPt(#phi,#eta);#phi;#eta",
-       totalPhiBins, -TMath::Pi(), TMath::Pi(),
-       adjEtaBins.size()-1, &adjEtaBins[0] );
+  // hECALadj_tracksQPt = fs->make<TProfile2D>("ECALadj_tracksQPt", "qxPt(#phi,#eta);#phi;#eta",
+  //      totalPhiBins, -TMath::Pi(), TMath::Pi(),
+  //      adjEtaBins.size()-1, &adjEtaBins[0] );
+
+
+
+
+  // hECALadj_tracks_id = fs->make<TProfile2D>("ECALadj_tracks_id", "E(i#phi,i#eta);i#phi;i#eta",
+  //      totalPhiBins, 0, totalPhiBins,
+  //      totalEtaBins, 1, totalEtaBins+1 );
+
+  hECALadj_tracksPt_id = fs->make<TProfile2D>("ECALadj_tracksPt_id", "E(i#phi,i#eta);i#phi;i#eta",
+       totalPhiBins, 0, totalPhiBins,
+       totalEtaBins, -140, totalEtaBins-140 );
+
+  // hECALadj_tracksQPt_id = fs->make<TProfile2D>("ECALadj_tracksQPt_id", "qxPt(i#phi,i#eta);i#phi;i#eta",
+  //      totalPhiBins, 0, totalPhiBins,
+  //      totalEtaBins, -140, totalEtaBins-140 );
 
 } // branchesTracksAtECALadjustable()
 
@@ -148,15 +171,15 @@ void RecHitAnalyzer::branchesTracksAtECALadjustable ( TTree* tree, edm::Service<
 // Fill stitched EE-, EB, EE+ rechits ________________________________________________________//
 void RecHitAnalyzer::fillTracksAtECALadjustable ( const edm::Event& iEvent, const edm::EventSetup& iSetup ) {
 
-  vECAL_tracksPt_.assign( totalEtaBins*totalPhiBins, 0. );
-  vECAL_tracksQPt_.assign( totalEtaBins*totalPhiBins, 0. );
+  vECALadj_tracksPt_.assign( totalEtaBins*totalPhiBins, 0. );
+  vECALadj_tracksQPt_.assign( totalEtaBins*totalPhiBins, 0. );
   hEvt_Adj_tracksPt->Reset();
   hEvt_Adj_tracksQPt->Reset();
 
   // int iphi_, ieta_, iz_, idx_;
   // int ieta_global, ieta_signed;
   // int ieta_global_offset, ieta_signed_offset;
-  float eta, phi, trackPt_, trackQPt_;
+  float eta=0, phi=0, trackPt_=0, trackQPt_=0;
   // GlobalPoint pos;
 
   // vECAL_tracksPt_.assign( 2*ECAL_IETA_MAX_EXT*EB_IPHI_MAX, 0. );
@@ -168,9 +191,11 @@ void RecHitAnalyzer::fillTracksAtECALadjustable ( const edm::Event& iEvent, cons
   iEvent.getByToken( EBRecHitCollectionT_, EBRecHitsH_ );
   edm::Handle<EcalRecHitCollection> EERecHitsH_;
   iEvent.getByToken( EERecHitCollectionT_, EERecHitsH_ );
+
   edm::ESHandle<CaloGeometry> caloGeomH_;
   iSetup.get<CaloGeometryRecord>().get( caloGeomH_ );
   const CaloGeometry* caloGeom = caloGeomH_.product();
+ 
 
   edm::Handle<reco::TrackCollection> tracksH_;
   iEvent.getByToken( trackCollectionT_, tracksH_ );
@@ -186,13 +211,81 @@ void RecHitAnalyzer::fillTracksAtECALadjustable ( const edm::Event& iEvent, cons
     trackPt_ =  iTk->pt();
     trackQPt_ = iTk->charge()*iTk->pt();
 
-    hEvt_Adj_tracksPt->Fill(  phi, eta, trackPt_ );
-    hEvt_Adj_tracksQPt->Fill( phi, eta, trackQPt_ );
+    if ( std::abs(eta) <= 3. ){
+    DetId id( spr::findDetIdECAL( caloGeom, eta, phi, false ) );
+    if ( id.subdetId() == EcalBarrel )
+    { 
+      auto subDetGeometry = caloGeom->getSubdetectorGeometry(id);
+      auto caloCellGeometry = subDetGeometry->getGeometry(id);
+      auto corners = caloCellGeometry->getCorners();
+      auto reference= caloCellGeometry->getPosition();
+      auto reference_phi = reference.phi();
+      auto reference_eta = reference.eta();
+      float kappa= 4*TMath::Pi()/HBHE_IPHI_NUM;
+      if (reference_phi>-kappa)
+        reference_phi=reference_phi+kappa-TMath::Pi();
+      else  
+        reference_phi=reference_phi+kappa+TMath::Pi();
 
-    hECALadj_tracks->Fill(    phi, eta, 1. );
-    hECALadj_tracksPt->Fill(  phi, eta, trackPt_ );
-    hECALadj_tracksQPt->Fill( phi, eta, trackQPt_ );
+      EBDetId ebId( id );
+      hEvt_Adj_tracksPt->SetBinContent(  ebId.iphi() - 1 +1, (ebId.ieta() > 0 ? ebId.ieta()-1 : ebId.ieta()) +141,
+        hEvt_Adj_tracksPt->GetBinContent(ebId.iphi() - 1 +1, (ebId.ieta() > 0 ? ebId.ieta()-1 : ebId.ieta()) +141)+trackPt_ );
+      hEvt_Adj_tracksQPt->Fill( reference_phi, reference_eta, trackQPt_ );
+
+
+      Int_t bin_number;
+      bin_number=hEvt_Adj->Fill( reference_eta, trackPt_ );
+      
+      
+      
+    if(ebId.ieta()>30 && ebId.ieta()<70)
+      std::cout<<" eta:"<<eta<<
+                 " reference_eta:"<<reference_eta<<
+                 " bin_number:"<<bin_number<<
+                 " predicted ieta:"<<bin_number-141<<
+                 " real ieta:"<<ebId.ieta()<<
+                 " bin width:"<<hEvt_Adj->GetBinWidth(bin_number)<<
+                 " bin center:"<<hEvt_Adj->GetBinCenter(bin_number)<<
+                 " bin low edge:"<<hEvt_Adj->GetBinLowEdge(bin_number)<<std::endl;
+      ///Evt_Adj_tracksPt->GetBinXYZ
+
+
+    }
+    else
+    {
+      //mess with phi in order to match original index arithmetic. Ugh.
+      float kappa= 4*TMath::Pi()/HBHE_IPHI_NUM;
+      if (phi>-kappa)
+        phi=phi+kappa-TMath::Pi();
+      else  
+        phi=phi+kappa+TMath::Pi();
+
+      hEvt_Adj_tracksPt->Fill(  phi, eta, trackPt_ );
+      hEvt_Adj_tracksQPt->Fill( phi, eta, trackQPt_ );
+
+    }
+    }
+
   } // tracks
+
+  int index1d=0;
+  for ( int ieta=1; ieta<=totalEtaBins; ieta++ )
+  {
+    for ( int iphi=1; iphi<=totalPhiBins; iphi++ )
+    {
+      index1d= (ieta-1)*totalPhiBins+iphi-1;//ieta_global*EB_IPHI_MAX + iphi_; 
+      vECALadj_tracksPt_[index1d] += hEvt_Adj_tracksPt->GetBinContent(iphi,ieta);
+      vECALadj_tracksQPt_[index1d] += hEvt_Adj_tracksQPt->GetBinContent(iphi,ieta);
+      if(hEvt_Adj_tracksPt->GetBinContent(iphi,ieta)>0.0001)
+      {
+        //hECALadj_tracks_id->Fill(    iphi-1, ieta-141, 1. );
+        hECALadj_tracksPt_id->Fill(  iphi-1, ieta-141, hEvt_Adj_tracksPt->GetBinContent(iphi,ieta ));
+        //hECALadj_tracksQPt_id->Fill( iphi-1, ieta-141, hEvt_Adj_tracksQPt->GetBinContent(iphi,ieta) );
+      }
+    }
+  }
+
+
 
 
   // for ( reco::TrackCollection::const_iterator iTk = tracksH_->begin();
