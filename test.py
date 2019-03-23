@@ -13,7 +13,7 @@ for e in tree:
 	for i in range(len(e.ECALadj_tracksPt)):
 		if(e.ECALadj_tracksPt[i]>0.001):
 			tracksPtadj.append((i,e.ECALadj_tracksPt[i]))
-	tracksPtadj.append((200,0.27))
+	#tracksPtadj.append((200,0.27))
 	print set(tracksPt).symmetric_difference(set(tracksPtadj))
 	print 1,tracksPt[index:index+length]
 	print 2,tracksPtadj[index:index+length]

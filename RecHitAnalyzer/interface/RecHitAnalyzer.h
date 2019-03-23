@@ -14,6 +14,8 @@
 // system include files
 #include <memory>
 #include <vector>
+#include <numeric>  
+#include <algorithm> 
 
 // user include files
 #include "FWCore/Framework/interface/Frameworkfwd.h"
@@ -78,6 +80,7 @@
 #include "TH1.h"
 #include "TH2.h"
 #include "TH3.h"
+#include "TVector2.h"
 #include "TProfile2D.h"
 #include "TTree.h"
 #include "TCanvas.h"
@@ -209,8 +212,8 @@ class RecHitAnalyzer : public edm::one::EDAnalyzer<edm::one::SharedResources>  {
 
     int nTotal, nPassed;
 
-    int granularityMultiPhi;
-    int granularityMultiEta;
+    unsigned int granularityMultiPhi;
+    unsigned int granularityMultiEta;
     const int granularityMultiECAL=5;
     std::vector<double> adjEtaBins;
     std::vector<double> adjPhiBins;
