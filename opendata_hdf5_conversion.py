@@ -185,18 +185,15 @@ for d, decay in enumerate(decays):
             X_ECAL_EEup = X_ECAL.map_blocks(lambda x: block_resample_EE(x), dtype=np.float32)
             print " >> %s: %s"%('ECAL_EEup_energy',X_ECAL_EEup.shape)
 
-            # TODO get this working
-            # ECAL Upsample
-            #if args.granularity != 1:
-            #    X_ECAL_EEup = np.stack([tile_stacked_array(x, args.granularity) for x in X_ECAL_EEup])
+             TODO get this working
+             ECAL Upsample
+            if args.granularity != 1:
+                X_ECAL_EEup = tile_array(X_ECAL_EEup, args.granularity, args.granularity)
 
             # pT Tracks at ECAL
-            if args.granularity == 3:
-                readouts = [3*280, 3*360]
-                branches = ['ECALadj_tracksPt_3x3']
-            elif args.granularity == 5:
-                readouts = [5*280, 5*360]
-                branches = ['ECALadj_tracksPt_5x5']
+            if args.granularity != 1:
+                readouts = [args.granularity*280, args.granularity*360]
+                branches = ['ECALadj_tracksPt_%dx%d'%(args.granularity, args.granularity)]
             else:
                 readouts = [280, 360]
                 branches = ['ECAL_tracksPt_atECALfixIPfromPV']
@@ -209,12 +206,9 @@ for d, decay in enumerate(decays):
             print " >> %s: %s"%(branches[0],X_TracksAtECAL.shape)
 
             # Average d0 Tracks at ECAL
-            if args.granularity == 3:
-                readouts = [3*280, 3*360]
-                branches = ['ECALadj_tracksD0Sig_3x3']
-            elif args.granularity == 5:
-                readouts = [5*280, 5*360]
-                branches = ['ECALadj_tracksD0Sig_5x5']
+            if args.granularity != 1:
+                readouts = [args.granularity*280, args.granularity*360]
+                branches = ['ECALadj_tracksD0Sig_%dx%d'%(args.granularity,args.granularity)]
             else:
                 readouts = [280, 360]
                 branches = ['ECAL_tracksD0Sig_atECALfixIP']
@@ -227,12 +221,9 @@ for d, decay in enumerate(decays):
             print " >> %s: %s"%(branches[0],X_D0TracksAtECAL.shape)
 
             # Average dz Tracks at ECAL
-            if args.granularity == 3:
-                readouts = [3*280, 3*360]
-                branches = ['ECALadj_tracksDzSig_3x3']
-            elif args.granularity == 5:
-                readouts = [5*280, 5*360]
-                branches = ['ECALadj_tracksDzSig_5x5']
+            if args.granularity != 1:
+                readouts = [args.granularity*280, args.granularity*360]
+                branches = ['ECALadj_tracksDzSig_%dx%d'%(args.granularity,args.granularity)]
             else:
                 readouts = [280, 360]
                 branches = ['ECAL_tracksDzSig_atECALfixIP']
@@ -245,12 +236,9 @@ for d, decay in enumerate(decays):
             print " >> %s: %s"%(branches[0],X_DzTracksAtECAL.shape)
 
             # Pixel L1 Rec Hits Fixed
-            if args.granularity == 3:
-                readouts = [3*280, 3*360]
-                branches = ['BPIX_layer1_ECALadj_3x3']
-            elif args.granularity == 5:
-                readouts = [5*280, 5*360]
-                branches = ['BPIX_layer1_ECALadj_5x5']
+            if args.granularity != 1:
+                readouts = [args.granularity*280, args.granularity*360]
+                branches = ['BPIX_layer1_ECALadj_%dx%d'%(args.granularity,args.granularity)]
             else:
                 readouts = [280, 360]
                 branches = ['BPIX_layer1_ECAL_atPV']
@@ -263,12 +251,9 @@ for d, decay in enumerate(decays):
             print " >> %s: %s"%(branches[0],X_PixelRecHitsL1.shape)
 
             # Pixel L2 Rec Hits Fixed
-            if args.granularity == 3:
-                readouts = [3*280, 3*360]
-                branches = ['BPIX_layer2_ECALadj_3x3']
-            elif args.granularity == 5:
-                readouts = [5*280, 5*360]
-                branches = ['BPIX_layer2_ECALadj_5x5']
+            if args.granularity != 1:
+                readouts = [args.granularity*280, args.granularity*360]
+                branches = ['BPIX_layer2_ECALadj_%dx%d'%(args.granularity,args.granularity)]
             else:
                 readouts = [280, 360]
                 branches = ['BPIX_layer2_ECAL_atPV']
@@ -281,12 +266,9 @@ for d, decay in enumerate(decays):
             print " >> %s: %s"%(branches[0],X_PixelRecHitsL2.shape)
 
             # Pixel L3 Rec Hits Fixed
-            if args.granularity == 3:
-                readouts = [3*280, 3*360]
-                branches = ['BPIX_layer3_ECALadj_3x3']
-            elif args.granularity == 5:
-                readouts = [5*280, 5*360]
-                branches = ['BPIX_layer3_ECALadj_5x5']
+            if args.granularity != 1:
+                readouts = [args.granularity*280, args.granularity*360]
+                branches = ['BPIX_layer3_ECALadj_%dx%d'%(args.granularity,args.granularity)]
             else:
                 readouts = [280, 360]
                 branches = ['BPIX_layer3_ECAL_atPV']
@@ -301,12 +283,7 @@ for d, decay in enumerate(decays):
             # HBHE upsample
             readouts = [56,72]
             branches = ["HBHE_energy"]
-            if args.granularity == 3:
-                upscale = 3*5
-            elif args.granularity == 5:
-                upscale = 5*5
-            else:
-                upscale = 5
+            upscale = 5*args.granularity
             X_HBHE_up = da.concatenate([\
                         da.from_delayed(\
                             load_X_upsampled(tree,i,i+get_chunk_size(i,neff,chunk_size), branches, readouts, scale[1], upscale),\
