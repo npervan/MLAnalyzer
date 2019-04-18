@@ -65,6 +65,7 @@ def tile_stacked_array(X, upscale):
     return X
     
 def tile_array(x, b0, b1):
+    #print 'array shape', x.shape
     r, c = x.shape                                    # number of rows/columns
     rs, cs = x.strides                                # row/column strides 
     x = as_strided(x, (r, b0, c, b1), (rs, 0, cs, 0)) # view a as larger 4D array

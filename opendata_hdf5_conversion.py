@@ -185,10 +185,11 @@ for d, decay in enumerate(decays):
             X_ECAL_EEup = X_ECAL.map_blocks(lambda x: block_resample_EE(x), dtype=np.float32)
             print " >> %s: %s"%('ECAL_EEup_energy',X_ECAL_EEup.shape)
 
-             TODO get this working
-             ECAL Upsample
+            # ECAL Upsample
             if args.granularity != 1:
-                X_ECAL_EEup = tile_array(X_ECAL_EEup, args.granularity, args.granularity)
+                X_ECAL_EEup = np.stack([tile_array(np.asarray(x[...,0]), args.granularity, args.granularity) for x in X_ECAL_EEup]).reshape(-1,280*args.granularity, 360*args.granularity,1)
+                print " >> %s: %s"%('ECAL_EEup_energy after upsampling ',X_ECAL_EEup.shape)
+
 
             # pT Tracks at ECAL
             if args.granularity != 1:
@@ -302,7 +303,7 @@ for d, decay in enumerate(decays):
             #print " >> %s: %s"%('X_Pixel_stacked', X_Pixel_stacked.shape)
             #X_Jet_stacked = da.concatenate([X_ECAL_stacked, X_Pixel_stacked], axis=-1)
             #X_Jet_stacked = da.concatenate([X_TracksAtECAL, X_D0TracksAtECAL, X_DzTracksAtECAL, X_HBHE_up, X_PixelRecHitsL1, X_PixelRecHitsL2, X_PixelRecHitsL3], axis=-1)
-            X_Jet_stacked = da.concatenate([X_TracksAtECAL, X_D0TracksAtECAL, X_DzTracksAtECAL, X_PixelRecHitsL1, X_PixelRecHitsL2, X_PixelRecHitsL3], axis=-1)
+            X_Jet_stacked = da.concatenate([X_TracksAtECAL, X_D0TracksAtECAL, X_DzTracksAtECAL, X_ECAL_EEup, X_HBHE_up, X_PixelRecHitsL1, X_PixelRecHitsL2, X_PixelRecHitsL3], axis=-1)
             print " >> %s: %s"%('X_Jet_stacked', X_Jet_stacked.shape)
 
             # EB
