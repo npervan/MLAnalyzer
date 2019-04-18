@@ -94,34 +94,32 @@ def resample_EE(imgECAL, factor=2):
     
     return np.expand_dims(imgECAL, -1)
 
-def crop_jet(imgECAL, iphi, ieta, jet_shape):
-    iphi = int(iphi*5 + 2)
-    ieta = int(ieta*5 + 2)
-    off = jet_shape//2
-    #print('iphi:%d, ieta:%d'%(iphi, ieta))
+def crop_jet(imgECAL, iphi, ieta, jet_shape, granularity):
+    #print ieta*5, iphi*5
+    iphi = int(iphi*5 + 2)*granularity + granularity//2
+    ieta = int(ieta*5 + 2)*granularity + granularity//2
+    #print ieta, iphi
+    off = int(jet_shape//2)
     if iphi < off:
-        #print('1')
         diff = off-iphi
         #diff = diff+150
         #print(diff)
         img_crop = np.concatenate((imgECAL[ieta-off:ieta+off+1,-diff:],
                                    imgECAL[ieta-off:ieta+off+1,:iphi+off+1]), axis=1)
-    elif 360-iphi < off:
-        #print('2')
-        diff = off - (360-iphi)
+    elif 360*granularity-iphi < off:
+        diff = off - (360*granularity-iphi)
         #diff = diff+150
         #print('diff:',diff)
         img_crop = np.concatenate((imgECAL[ieta-off:ieta+off+1,iphi-off:], 
                                    imgECAL[ieta-off:ieta+off+1,:diff+1]), axis=1)
     else:
-        #print('0')
         img_crop = imgECAL[ieta-off:ieta+off+1,iphi-off:iphi+off+1]
     #print(img_crop.shape)
     return img_crop
 
 @delayed
-def crop_jet_block(Xs, iphis, ietas, jet_shape):
-    X = np.array([crop_jet(x,iphi,ieta,jet_shape) for x,iphi,ieta in zip(Xs,iphis,ietas)])
+def crop_jet_block(Xs, iphis, ietas, jet_shape, granularity):
+    X = np.array([crop_jet(x,iphi,ieta,jet_shape,granularity) for x,iphi,ieta in zip(Xs,iphis,ietas)])
     #print X.shape
     return X
 
