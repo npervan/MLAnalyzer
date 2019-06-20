@@ -56,7 +56,7 @@ process.GlobalTag = GlobalTag(process.GlobalTag, '80X_mcRun2_asymptotic_2016_Tra
 
 process.maxEvents = cms.untracked.PSet( 
     #input = cms.untracked.int32(options.maxEvents) 
-    input = cms.untracked.int32(2) 
+    input = cms.untracked.int32(10) 
     #input = cms.untracked.int32(1000000) 
     )
 

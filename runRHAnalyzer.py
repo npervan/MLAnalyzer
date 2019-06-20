@@ -15,6 +15,6 @@ isTTbar_ = 1
 #outputFile_ = 'test.root'
 outputFile_ = 'test/top_aod_test.root'
 
-cmd="cmsRun %s inputFiles=%s outputFile=%s isTTbar=%d isMINIAOD=%d" %(cfg,inputFiles_,outputFile_,isTTbar_)
+cmd="cmsRun %s inputFiles=%s outputFile=%s isTTbar=%d" %(cfg,inputFiles_,outputFile_,isTTbar_)
 print '%s'%cmd
 os.system(cmd)
