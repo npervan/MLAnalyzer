@@ -56,7 +56,7 @@ process.GlobalTag = GlobalTag(process.GlobalTag, '80X_mcRun2_asymptotic_2016_Tra
 
 process.maxEvents = cms.untracked.PSet( 
     #input = cms.untracked.int32(options.maxEvents) 
-    input = cms.untracked.int32(-1) 
+    input = cms.untracked.int32(2) 
     #input = cms.untracked.int32(1000000) 
     )
 
@@ -73,6 +73,7 @@ print " >> Loaded",len(options.inputFiles),"input files from list."
 process.load("RecoLocalTracker.SiPixelRecHits.SiPixelRecHits_cfi")
 process.load("RecoLocalTracker.SiPixelRecHits.PixelCPEGeneric_cfi")
 process.load("RecoLocalTracker.SiStripRecHitConverter.SiStripRecHitConverter_cfi")
+#process.load("RHAnalyzer_cfi")
 process.load("MLAnalyzer.RecHitAnalyzer.RHAnalyzer_cfi")
 process.fevt.mode = cms.string(options.processMode)
 if options.isTTbar:
@@ -90,12 +91,13 @@ from RecoJets.JetProducers.ak5GenJets_cfi import ak5GenJets
 process.ak8GenJets      = ak5GenJets.clone( rParam = jet_radius )
 
 if options.UseAK8:
-    process.fevt.PFJetCollection = cms.InputTag('ak8PFJets')
+    process.fevt.PFJetCollection = cms.InputTag('ak8PFJetsCHS')
     process.fevt.genJetCollection = cms.InputTag('ak8GenJets')
 else:
     process.fevt.PFJetCollection = cms.InputTag('ak5PFJets')
     process.fevt.genJetCollection = cms.InputTag('ak5GenJets')
    
+
 #process.fevt.mode = cms.string("JetLevel") # for when using crab
 #process.fevt.mode = cms.string("EventLevel") # for when using crab
 print " >> Processing as:",(process.fevt.mode)
@@ -105,9 +107,11 @@ process.TFileService = cms.Service("TFileService",
     #fileName = cms.string('/uscms/home/bburkle/nobackup/working_area/CMSSW_9_3_0/src/MLAnalyzer/output/test/QCD_test.root')
     )
 
+#process.fevt = cms.EDAnalyzer("EventContentAnalyzer")
+process.p = cms.Path(process.fevt)
 #process.SimpleMemoryCheck = cms.Service( "SimpleMemoryCheck", ignoreTotal = cms.untracked.int32(1) )
 #process.p = cms.Path(process.siStripMatchedRecHits*process.siPixelRecHits*process.fevt)
-process.p = cms.Path(process.siStripMatchedRecHits*process.siPixelRecHits*process.fevt)
-if options.UseAK8:
-    process.p = cms.Path(process.siStripMatchedRecHits*process.siPixelRecHits*process.genParticlesForJets*process.ak8PFJets*process.ak8GenJets*process.fevt)
+#process.p = cms.Path(process.siStripMatchedRecHits*process.siPixelRecHits*process.fevt)
+#if options.UseAK8:
+#    process.p = cms.Path(process.siStripMatchedRecHits*process.siPixelRecHits*process.genParticlesForJets*process.ak8PFJets*process.ak8GenJets*process.fevt)
     
