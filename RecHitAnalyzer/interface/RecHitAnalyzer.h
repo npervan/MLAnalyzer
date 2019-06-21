@@ -1,3 +1,4 @@
+
 #ifndef RecHitAnalyzer_h
 #define RecHitAnalyzer_h
 // -*- C++ -*-
@@ -131,18 +132,37 @@ class RecHitAnalyzer : public edm::EDAnalyzer  {
     virtual void endJob() override;
 
     // ----------member data ---------------------------
-    edm::InputTag EBRecHitCollectionT_;
-    edm::InputTag EBDigiCollectionT_;
-    edm::InputTag EERecHitCollectionT_;
-    edm::InputTag HBHERecHitCollectionT_;
-    edm::InputTag TRKRecHitCollectionT_;
-    edm::InputTag genParticleCollectionT_;
-    edm::InputTag photonCollectionT_;
-    edm::InputTag jetCollectionT_;
-    edm::InputTag genJetCollectionT_;
-    edm::InputTag trackCollectionT_;
-    edm::InputTag pfCandCollectionT_;
-    edm::InputTag pvCollectionT_;
+    //edm::InputTag EBRecHitCollectionT_;
+    //edm::InputTag EBDigiCollectionT_;
+    //edm::InputTag EERecHitCollectionT_;
+    //edm::InputTag HBHERecHitCollectionT_;
+    //edm::InputTag TRKRecHitCollectionT_;
+    //edm::InputTag genParticleCollectionT_;
+    //edm::InputTag photonCollectionT_;
+    //edm::InputTag jetCollectionT_;
+    //edm::InputTag genJetCollectionT_;
+    //edm::InputTag trackCollectionT_;
+    //edm::InputTag pfCandCollectionT_;
+    //edm::InputTag pvCollectionT_;
+
+    edm::EDGetTokenT<EcalRecHitCollection> EBRecHitCollectionT_;
+    edm::EDGetTokenT<EBDigiCollection> EBDigiCollectionT_;
+    edm::EDGetTokenT<EcalRecHitCollection> EERecHitCollectionT_;
+    edm::EDGetTokenT<HBHERecHitCollection> HBHERecHitCollectionT_;
+    edm::EDGetTokenT<TrackingRecHitCollection> TRKRecHitCollectionT_;
+    edm::EDGetTokenT<reco::GenParticleCollection> genParticleCollectionT_;
+    edm::EDGetTokenT<reco::PhotonCollection> photonCollectionT_;
+    edm::EDGetTokenT<reco::PFJetCollection> jetCollectionT_;
+    edm::EDGetTokenT<reco::GenJetCollection> genJetCollectionT_;
+    edm::EDGetTokenT<reco::TrackCollection> trackCollectionT_;
+
+    typedef std::vector<reco::PFCandidate>  PFCollection;
+    //typedef std::vector<reco::VertexCollection>  PVCollection;
+    //typedef reco::PFCandidate  PFCollection;
+    typedef reco::VertexCollection  PVCollection;
+
+    edm::EDGetTokenT<PFCollection> pfCandCollectionT_;
+    edm::EDGetTokenT<PVCollection> pvCollectionT_;
 
     edm::InputTag siPixelRecHitCollectionT_;
     std::vector<edm::InputTag> siStripRecHitCollectionT_;

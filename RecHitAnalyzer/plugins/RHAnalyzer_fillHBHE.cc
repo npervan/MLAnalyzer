@@ -54,7 +54,7 @@ void RecHitAnalyzer::fillHBHE ( const edm::Event& iEvent, const edm::EventSetup&
   hEvt_HBHE_energy->Reset();
 
   edm::Handle<HBHERecHitCollection> HBHERecHitsH_;
-  iEvent.getByLabel( HBHERecHitCollectionT_, HBHERecHitsH_ );
+  iEvent.getByToken( HBHERecHitCollectionT_, HBHERecHitsH_ );
 
   /*
   // Provides access to global cell position

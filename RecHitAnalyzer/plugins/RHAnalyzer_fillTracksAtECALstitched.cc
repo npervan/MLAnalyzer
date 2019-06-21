@@ -236,19 +236,19 @@ void RecHitAnalyzer::fillTracksAtECALstitched ( const edm::Event& iEvent, const 
   }
 
   edm::Handle<EcalRecHitCollection> EBRecHitsH_;
-  iEvent.getByLabel( EBRecHitCollectionT_, EBRecHitsH_ );
+  iEvent.getByToken( EBRecHitCollectionT_, EBRecHitsH_ );
   edm::Handle<EcalRecHitCollection> EERecHitsH_;
-  iEvent.getByLabel( EERecHitCollectionT_, EERecHitsH_ );
+  iEvent.getByToken( EERecHitCollectionT_, EERecHitsH_ );
   edm::ESHandle<CaloGeometry> caloGeomH_;
   iSetup.get<CaloGeometryRecord>().get( caloGeomH_ );
   const CaloGeometry* caloGeom = caloGeomH_.product();
 
   edm::Handle<reco::TrackCollection> tracksH_;
-  iEvent.getByLabel( trackCollectionT_, tracksH_ );
+  iEvent.getByToken( trackCollectionT_, tracksH_ );
 
   bool isPVgood=false;
   edm::Handle<reco::VertexCollection> pvColl;
-  iEvent.getByLabel(pvCollectionT_, pvColl);
+  iEvent.getByToken(pvCollectionT_, pvColl);
   isPVgood = pvColl.product()->size()>0;
   reco::Vertex the_PV;
   if (isPVgood) the_PV = pvColl.product()->at(0);

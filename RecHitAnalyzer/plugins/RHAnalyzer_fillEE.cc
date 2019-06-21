@@ -48,7 +48,7 @@ void RecHitAnalyzer::fillEE ( const edm::Event& iEvent, const edm::EventSetup& i
   }
 
   edm::Handle<EcalRecHitCollection> EERecHitsH_;
-  iEvent.getByLabel( EERecHitCollectionT_, EERecHitsH_ );
+  iEvent.getByToken( EERecHitCollectionT_, EERecHitsH_ );
 
   // Fill EE rechits
   for ( EcalRecHitCollection::const_iterator iRHit = EERecHitsH_->begin();

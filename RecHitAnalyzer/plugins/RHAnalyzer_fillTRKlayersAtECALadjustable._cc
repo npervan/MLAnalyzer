@@ -265,7 +265,7 @@ void RecHitAnalyzer::fillTRKlayersAtECALadjustable ( const edm::Event& iEvent, c
 
   bool isPVgood=false;
   edm::Handle<reco::VertexCollection> pvColl;
-  iEvent.getByLabel(pvCollectionT_, pvColl);
+  iEvent.getByToken(pvCollectionT_, pvColl);
   isPVgood = pvColl.product()->size()>0;
   reco::Vertex the_PV;
   if (isPVgood) the_PV = pvColl.product()->at(0);
@@ -277,7 +277,7 @@ void RecHitAnalyzer::fillTRKlayersAtECALadjustable ( const edm::Event& iEvent, c
   const TrackerGeometry& theTracker(*geom);
 
   edm::Handle<SiPixelRecHitCollection> recHitColl;
-  iEvent.getByLabel(siPixelRecHitCollectionT_, recHitColl);
+  iEvent.getByToken(siPixelRecHitCollectionT_, recHitColl);
 
   SiPixelRecHitCollection::const_iterator recHitIdIterator      = (recHitColl.product())->begin();
   SiPixelRecHitCollection::const_iterator recHitIdIteratorEnd   = (recHitColl.product())->end();
@@ -320,7 +320,7 @@ void RecHitAnalyzer::fillTRKlayersAtECALadjustable ( const edm::Event& iEvent, c
   for (const auto & itoken: siStripRecHitCollectionT_)
   {
     edm::Handle<SiStripRecHit2DCollection> stripRecHitColl;
-    iEvent.getByLabel( itoken , stripRecHitColl);
+    iEvent.getByToken( itoken , stripRecHitColl);
 
     SiStripRecHit2DCollection::const_iterator stripRecHitIdIterator      = (stripRecHitColl.product())->begin();
     SiStripRecHit2DCollection::const_iterator stripRecHitIdIteratorEnd   = (stripRecHitColl.product())->end();

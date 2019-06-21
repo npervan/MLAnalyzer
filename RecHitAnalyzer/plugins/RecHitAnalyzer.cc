@@ -16,28 +16,28 @@
 RecHitAnalyzer::RecHitAnalyzer(const edm::ParameterSet& iConfig)
 {
 
-  //EBRecHitCollectionT_ = iConfig.getParameter<edm::InputTag>("EBRecHitCollection");
-  EBRecHitCollectionT_ = iConfig.getParameter<edm::InputTag>("reducedEBRecHitCollection");
-  //EBDigiCollectionT_ = iConfig.getParameter<edm::InputTag>("selectedEBDigiCollection");
-  //EBDigiCollectionT_ = iConfig.getParameter<edm::InputTag>("EBDigiCollection"));
-  EERecHitCollectionT_ = iConfig.getParameter<edm::InputTag>("reducedEERecHitCollection");
-  //EERecHitCollectionT_ = iConfig.getParameter<edm::InputTag>("EERecHitCollection"));
-  HBHERecHitCollectionT_ = iConfig.getParameter<edm::InputTag>("reducedHBHERecHitCollection");
-  //TRKRecHitCollectionT_  = iConfig.getParameter<edm::InputTag>("trackRecHitCollection");
+  //EBRecHitCollectionT_ = consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("EBRecHitCollection"));
+  EBRecHitCollectionT_ = consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("reducedEBRecHitCollection"));
+  //EBDigiCollectionT_ = consumes<EBDigiCollection>(iConfig.getParameter<edm::InputTag>("selectedEBDigiCollection"));
+  //EBDigiCollectionT_ = consumes<EBDigiCollection>(iConfig.getParameter<edm::InputTag>("EBDigiCollection"));
+  EERecHitCollectionT_ = consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("reducedEERecHitCollection"));
+  //EERecHitCollectionT_ = consumes<EcalRecHitCollection>(iConfig.getParameter<edm::InputTag>("EERecHitCollection"));
+  HBHERecHitCollectionT_ = consumes<HBHERecHitCollection>(iConfig.getParameter<edm::InputTag>("reducedHBHERecHitCollection"));
+  //TRKRecHitCollectionT_  = consumes<TrackingRecHitCollection>(iConfig.getParameter<edm::InputTag>("trackRecHitCollection"));
 
-  genParticleCollectionT_ = iConfig.getParameter<edm::InputTag>("genParticleCollection");
-  photonCollectionT_ = iConfig.getParameter<edm::InputTag>("gedPhotonCollection");
+  genParticleCollectionT_ = consumes<reco::GenParticleCollection>(iConfig.getParameter<edm::InputTag>("genParticleCollection"));
+  photonCollectionT_ = consumes<reco::PhotonCollection>(iConfig.getParameter<edm::InputTag>("gedPhotonCollection"));
   //photonCollectionT_ = iConfig.getParameter<edm::InputTag>("photonCollection");
   //jetCollectionT_ = iConfig.getParameter<edm::InputTag>("ak4PFJetCollection");
-  jetCollectionT_ = iConfig.getParameter<edm::InputTag>("PFJetCollection");
-  genJetCollectionT_ = iConfig.getParameter<edm::InputTag>("genJetCollection");
-  trackCollectionT_ = iConfig.getParameter<edm::InputTag>("trackCollection");
-  pfCandCollectionT_ = iConfig.getParameter<edm::InputTag>("pfCollection");
-  pvCollectionT_ = iConfig.getParameter<edm::InputTag>("pvCollection");
+  jetCollectionT_ = consumes<reco::PFJetCollection>(iConfig.getParameter<edm::InputTag>("PFJetCollection"));
+  genJetCollectionT_ = consumes<reco::GenJetCollection>(iConfig.getParameter<edm::InputTag>("genJetCollection"));
+  trackCollectionT_ = consumes<reco::TrackCollection>(iConfig.getParameter<edm::InputTag>("trackCollection"));
+  pfCandCollectionT_ = consumes<PFCollection>(iConfig.getParameter<edm::InputTag>("pfCollection"));
+  pvCollectionT_ = consumes<PVCollection>(iConfig.getParameter<edm::InputTag>("pvCollection"));
 
 
-  siPixelRecHitCollectionT_   = iConfig.getParameter<edm::InputTag>("siPixelRecHitCollection");
-  siStripRecHitCollectionT_ = iConfig.getParameter<std::vector<edm::InputTag> >("siStripRecHitCollection");
+  //siPixelRecHitCollectionT_   = iConfig.getParameter<edm::InputTag>("siPixelRecHitCollection");
+  //siStripRecHitCollectionT_ = iConfig.getParameter<std::vector<edm::InputTag> >("siStripRecHitCollection");
 
   mode_      = iConfig.getParameter<std::string>("mode");
   minJetPt_  = iConfig.getParameter<double>("minJetPt");
@@ -111,12 +111,12 @@ RecHitAnalyzer::RecHitAnalyzer(const edm::ParameterSet& iConfig)
   branchesTracksAtEBEE(RHTree, fs);
   branchesTracksAtECALstitched( RHTree, fs);
   branchesPFCandsAtECALstitched( RHTree, fs);
-  branchesTRKlayersAtEBEE(RHTree, fs);
-  branchesTRKlayersAtECALstitched(RHTree, fs);
+  //branchesTRKlayersAtEBEE(RHTree, fs);
+  //branchesTRKlayersAtECALstitched(RHTree, fs);
   //branchesTRKvolumeAtEBEE(RHTree, fs);
   //branchesTRKvolumeAtECAL(RHTree, fs);
   branchesTracksAtECALadjustable( RHTree, fs);
-  branchesTRKlayersAtECALadjustable(RHTree, fs);
+  //branchesTRKlayersAtECALadjustable(RHTree, fs);
 
   // For FC inputs
   //RHTree->Branch("FC_inputs",      &vFC_inputs_);
@@ -154,9 +154,9 @@ RecHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   // ----- Apply event selection cuts ----- //
 
   //edm::Handle<reco::PhotonCollection> photons;
-  //iEvent.getByLabel(photonCollectionT_, photons);
+  //iEvent.getByToken(photonCollectionT_, photons);
   //edm::Handle<reco::GenParticleCollection> genParticles;
-  //iEvent.getByLabel(genParticleCollectionT_, genParticles);
+  //iEvent.getByToken(genParticleCollectionT_, genParticles);
 
   //std::cout << "GenCol.size: " << genParticles->size() << std::endl;
   bool passedSelection = false;
@@ -165,11 +165,14 @@ RecHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
 
   if ( doJets_ ) {
     passedSelection = runEvtSel_jet( iEvent, iSetup );
+    std::cout << "pass_jet" << std::endl;
   } else {
     passedSelection = runEvtSel( iEvent, iSetup );
+    std::cout << "pass" << std::endl;
   }
 
   if ( !passedSelection ) {
+    std::cout << "Failed cut" << std::endl;
     h_sel->Fill( 0. );
     return;
   }
@@ -187,15 +190,15 @@ RecHitAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iSetup)
   }
   for (unsigned int i=0;i<Nhitproj;i++)
   {
-    fillTRKlayersAtECALstitched( iEvent, iSetup, i );
+    //fillTRKlayersAtECALstitched( iEvent, iSetup, i );
   }
   for (unsigned int i=0;i<Nadjproj;i++)
   {
     fillTracksAtECALadjustable( iEvent, iSetup, i );
-    fillTRKlayersAtECALadjustable( iEvent, iSetup, i );
+    //fillTRKlayersAtECALadjustable( iEvent, iSetup, i );
   }
   fillPFCandsAtECALstitched( iEvent, iSetup );
-  fillTRKlayersAtEBEE( iEvent, iSetup );
+  //fillTRKlayersAtEBEE( iEvent, iSetup );
   //fillTRKlayersAtECALstitched( iEvent, iSetup );
   //fillTRKvolumeAtEBEE( iEvent, iSetup );
   //fillTRKvolumeAtECAL( iEvent, iSetup );

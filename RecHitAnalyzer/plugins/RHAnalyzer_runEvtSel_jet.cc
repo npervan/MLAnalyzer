@@ -62,10 +62,10 @@ bool RecHitAnalyzer::runEvtSel_jet ( const edm::Event& iEvent, const edm::EventS
   const CaloGeometry* caloGeom = caloGeomH_.product();
 
   edm::Handle<HBHERecHitCollection> HBHERecHitsH_;
-  iEvent.getByLabel( HBHERecHitCollectionT_, HBHERecHitsH_ );
+  iEvent.getByToken( HBHERecHitCollectionT_, HBHERecHitsH_ );
 
   edm::Handle<reco::PFJetCollection> jets;
-  iEvent.getByLabel(jetCollectionT_, jets);
+  iEvent.getByToken(jetCollectionT_, jets);
   if ( debug ) std::cout << " >> PFJetCol.size: " << jets->size() << std::endl;
 
   float seedE;

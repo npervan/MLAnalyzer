@@ -45,7 +45,7 @@ void RecHitAnalyzer::fillEB ( const edm::Event& iEvent, const edm::EventSetup& i
   vEB_time_.assign( EBDetId::kSizeForDenseIndexing, 0. );
 
   edm::Handle<EcalRecHitCollection> EBRecHitsH_;
-  iEvent.getByLabel( EBRecHitCollectionT_, EBRecHitsH_);
+  iEvent.getByToken( EBRecHitCollectionT_, EBRecHitsH_);
 
   // Provides access to global cell position
   edm::ESHandle<CaloGeometry> caloGeomH_;
@@ -98,7 +98,7 @@ void RecHitAnalyzer::fillEBdigis ( const edm::Event& iEvent, const edm::EventSet
 
   // Initialize data collection pointers
   edm::Handle<EBDigiCollection> EBDigisH;
-  iEvent.getByLabel(EBDigiCollectionT_, EBDigisH);
+  iEvent.getByToken(EBDigiCollectionT_, EBDigisH);
 
   // Provides access to global cell position and coordinates below
   edm::ESHandle<CaloGeometry> caloGeomH;

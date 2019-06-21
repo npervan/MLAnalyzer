@@ -312,7 +312,7 @@ void RecHitAnalyzer::fillTRKlayersAtEBEE ( const edm::Event& iEvent, const edm::
 
 
   edm::Handle<SiPixelRecHitCollection> recHitColl;
-  iEvent.getByLabel(siPixelRecHitCollectionT_, recHitColl);
+  iEvent.getByToken(siPixelRecHitCollectionT_, recHitColl);
 
 
   SiPixelRecHitCollection::const_iterator recHitIdIterator      = (recHitColl.product())->begin();
@@ -369,7 +369,7 @@ void RecHitAnalyzer::fillTRKlayersAtEBEE ( const edm::Event& iEvent, const edm::
   for (const auto & itoken: siStripRecHitCollectionT_)
   {
     edm::Handle<SiStripRecHit2DCollection> stripRecHitColl;
-    iEvent.getByLabel( itoken , stripRecHitColl);
+    iEvent.getByToken( itoken , stripRecHitColl);
 
     SiStripRecHit2DCollection::const_iterator stripRecHitIdIterator      = (stripRecHitColl.product())->begin();
     SiStripRecHit2DCollection::const_iterator stripRecHitIdIteratorEnd   = (stripRecHitColl.product())->end();

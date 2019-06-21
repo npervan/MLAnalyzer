@@ -33,8 +33,8 @@ bool RecHitAnalyzer::runEvtSel_jet_dijet( const edm::Event& iEvent, const edm::E
 
   edm::Handle<reco::PFJetCollection> jets;
   edm::Handle<reco::GenParticleCollection> genParticles;
-  iEvent.getByLabel(jetCollectionT_, jets);
-  iEvent.getByLabel(genParticleCollectionT_, genParticles);
+  iEvent.getByToken(jetCollectionT_, jets);
+  iEvent.getByToken(genParticleCollectionT_, genParticles);
 
   vJetIdxs.clear();
   vDijet_jet_pT_.clear();
@@ -141,7 +141,7 @@ bool RecHitAnalyzer::runEvtSel_jet_dijet( const edm::Event& iEvent, const edm::E
 void RecHitAnalyzer::fillEvtSel_jet_dijet( const edm::Event& iEvent, const edm::EventSetup& iSetup ) {
 
   edm::Handle<reco::PFJetCollection> jets;
-  iEvent.getByLabel(jetCollectionT_, jets);
+  iEvent.getByToken(jetCollectionT_, jets);
 
   h_dijet_jet_nJet->Fill( vJetIdxs.size() );
   // Fill branches and histograms 

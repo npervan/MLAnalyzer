@@ -53,7 +53,7 @@ void RecHitAnalyzer::fillHCALatEBEE ( const edm::Event& iEvent, const edm::Event
   }
 
   edm::Handle<HBHERecHitCollection> HBHERecHitsH_;
-  iEvent.getByLabel( HBHERecHitCollectionT_, HBHERecHitsH_ );
+  iEvent.getByToken( HBHERecHitCollectionT_, HBHERecHitsH_ );
   // Provides access to global cell position
   edm::ESHandle<CaloGeometry> caloGeomH_;
   iSetup.get<CaloGeometryRecord>().get( caloGeomH_ );

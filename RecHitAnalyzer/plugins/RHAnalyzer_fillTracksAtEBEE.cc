@@ -135,7 +135,7 @@ void RecHitAnalyzer::fillTracksAtEBEE ( const edm::Event& iEvent, const edm::Eve
   }
 
   edm::Handle<reco::TrackCollection> tracksH_;
-  iEvent.getByLabel( trackCollectionT_, tracksH_ );
+  iEvent.getByToken( trackCollectionT_, tracksH_ );
   // Provides access to global cell position
   edm::ESHandle<CaloGeometry> caloGeomH_;
   iSetup.get<CaloGeometryRecord>().get( caloGeomH_ );

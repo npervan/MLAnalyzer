@@ -94,15 +94,15 @@ void RecHitAnalyzer::fillPFCandsAtECALstitched ( const edm::Event& iEvent, const
   for ( int iz(0); iz < nEE; ++iz ) hEvt_EE_muonsPt[iz]->Reset();
 
   edm::Handle<EcalRecHitCollection> EBRecHitsH_;
-  iEvent.getByLabel( EBRecHitCollectionT_, EBRecHitsH_ );
+  iEvent.getByToken( EBRecHitCollectionT_, EBRecHitsH_ );
   edm::Handle<EcalRecHitCollection> EERecHitsH_;
-  iEvent.getByLabel( EERecHitCollectionT_, EERecHitsH_ );
+  iEvent.getByToken( EERecHitCollectionT_, EERecHitsH_ );
   edm::ESHandle<CaloGeometry> caloGeomH_;
   iSetup.get<CaloGeometryRecord>().get( caloGeomH_ );
   const CaloGeometry* caloGeom = caloGeomH_.product();
 
   edm::Handle<reco::PFCandidateCollection> pfCandsH_;
-  iEvent.getByLabel(pfCandCollectionT_, pfCandsH_);
+  iEvent.getByToken(pfCandCollectionT_, pfCandsH_);
 
   for ( reco::PFCandidateCollection::const_iterator iPFC = pfCandsH_->begin();
         iPFC != pfCandsH_->end(); ++iPFC ) {
