@@ -3,8 +3,9 @@ import random
 config = config()
 
 
-mc='QCD'
+mc='TTbar'
 pT=400
+m_num=2000
 filelist_ = ''
 files_ = []
 the_name=''
@@ -15,8 +16,8 @@ isTTbar_=0
 #dataset_ = '/RSGluonToTT_M-4000_TuneCUETP8M1_14TeV-pythia8/PhaseIITDRFall17DR-PU200_93X_upgrade2023_realistic_v2-v1/GEN-SIM-RECO'
 assert mc == 'TTbar' or mc == 'QCD'
 if mc=='TTbar':
-    filelist_ = '/uscms/home/bburkle/nobackup/working_area/CMSSW_5_3_32/src/opendatadnn/step2_TtbarFromOpen'
-    the_name = 'TTbar_small_sample_pT%d_%dTjet_opendata' % (pT,nJets_)
+    filelist_ = 'aod_m-2000_filelist.txt'
+    the_name = 'TTbar_pT%d_%dTjet_aod_m-%d' % (pT,nJets_,m_num)
     splitting = 20 #current ~50 events per file
     files_ = open(filelist_).readlines()
     isTTbar_=1
@@ -36,7 +37,7 @@ skipEvents_ = 0
 
 
 config.General.requestName = the_name
-config.General.workArea = '/uscms/home/bburkle/nobackup/working_area/CMSSW_5_3_32/src/MLAnalyzer'
+config.General.workArea = '/uscms/home/npervan/nobackup/e2e/jmar/CMSSW_8_0_21/src/MLAnalyzer'
 config.General.transferOutputs = True
 config.General.transferLogs = True
 
@@ -52,7 +53,7 @@ config.Data.userInputFiles = files_
 config.Data.splitting = 'FileBased'
 config.Data.unitsPerJob = splitting #if splitting by files
 config.Data.publication = False
-config.Data.outLFNDirBase = '/store/user/%s/E2E/open_data_ntuples/' % (getUsernameFromSiteDB())
+config.Data.outLFNDirBase = '/store/user/%s/e2e/jmar_aod_ntuples/' % (getUsernameFromSiteDB())
 config.Data.outputDatasetTag = the_name
 
 config.Site.storageSite = 'T3_US_FNALLPC'

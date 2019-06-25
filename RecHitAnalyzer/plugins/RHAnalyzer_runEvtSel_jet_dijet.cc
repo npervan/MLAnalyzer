@@ -88,7 +88,7 @@ bool RecHitAnalyzer::runEvtSel_jet_dijet( const edm::Event& iEvent, const edm::E
 
       if ( std::abs(iJet->pt()) < minJetPt_ ) continue;
       if ( std::abs(iJet->eta()) > maxJetEta_) continue;
-      if (had_tops[ihad].DeltaR(vjet)>0.8) continue;
+      if (had_tops[ihad].DeltaR(vjet)>0.6) continue;
       if (wdau[ihad].DeltaR(vjet)>0.8) continue;
       if (bdau[ihad].DeltaR(vjet)>0.8) continue;
 

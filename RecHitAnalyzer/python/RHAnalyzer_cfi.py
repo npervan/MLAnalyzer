@@ -32,7 +32,7 @@ fevt = cms.EDAnalyzer('RecHitAnalyzer'
 
     # Jet level cfg
     , nJets = cms.int32(1)
-    , minJetPt = cms.double(400.)
+    , minJetPt = cms.double(200.)
     , maxJetEta = cms.double(2.4)
     , isTTbar = cms.bool(True)
 
