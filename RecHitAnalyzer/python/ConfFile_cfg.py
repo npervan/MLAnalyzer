@@ -56,12 +56,14 @@ process.GlobalTag = GlobalTag(process.GlobalTag, '80X_mcRun2_asymptotic_2016_Tra
 
 process.maxEvents = cms.untracked.PSet( 
     #input = cms.untracked.int32(options.maxEvents) 
-    input = cms.untracked.int32(10) 
+    input = cms.untracked.int32(1000) 
+    #input = cms.untracked.int32(-1) 
     #input = cms.untracked.int32(1000000) 
     )
 
 process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(
+       # 'root://cmsxrootd.fnal.gov//store/mc/RunIISummer16DR80Premix/ZprimeToTT_M-2000_W-20_TuneCUETP8M1_13TeV-madgraphMLM-pythia8/AODSIM/PUMoriond17_80X_mcRun2_asymptotic_2016_TrancheIV_v6-v1/70000/FA50EB2A-3EC8-E611-B9C5-02163E019C8B.root'
       #'test'
       options.inputFiles
       )
@@ -108,6 +110,7 @@ process.TFileService = cms.Service("TFileService",
     )
 
 #process.fevt = cms.EDAnalyzer("EventContentAnalyzer")
+print("Calling process.p")
 process.p = cms.Path(process.fevt)
 #process.SimpleMemoryCheck = cms.Service( "SimpleMemoryCheck", ignoreTotal = cms.untracked.int32(1) )
 #process.p = cms.Path(process.siStripMatchedRecHits*process.siPixelRecHits*process.fevt)

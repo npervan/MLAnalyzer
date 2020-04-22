@@ -31,12 +31,14 @@ fevt = cms.EDAnalyzer('RecHitAnalyzer'
     )
 
     # Jet level cfg
-    , nJets = cms.int32(1)
-    , minJetPt = cms.double(200.)
-    , maxJetEta = cms.double(2.4)
+    , nJets = cms.int32(2)
+    , minJetPt = cms.double(100.)
+    , maxJetEta = cms.double(4.4)
     , isTTbar = cms.bool(True)
+    , minTopPt = cms.double(200.)
+    , maxTopEta = cms.double(2.4)
 
     #granularity multiplier wrt ECAL maps for tracker and tracking RH images
-    , granularityMultiPhi = cms.int32(5)
-    , granularityMultiEta = cms.int32(5)
+    , granularityMultiPhi = cms.int32(1)
+    , granularityMultiEta = cms.int32(1)
     )

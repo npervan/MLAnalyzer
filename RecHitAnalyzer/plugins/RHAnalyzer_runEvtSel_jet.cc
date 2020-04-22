@@ -133,10 +133,10 @@ bool RecHitAnalyzer::runEvtSel_jet ( const edm::Event& iEvent, const edm::EventS
 
     // If the seed is too close to the edge of HE, discard event
     // Required to keep the seed at the image center
-    if ( HBHE_IETA_MAX_HE-1 - ietaAbs_ < image_padding ) { 
-      if ( debug ) std::cout << " Fail HE edge cut " << std::endl;
-      continue;
-    }
+    //if ( HBHE_IETA_MAX_HE-1 - ietaAbs_ < image_padding ) { 
+    //  if ( debug ) std::cout << " Fail HE edge cut " << std::endl;
+    //  continue;
+    //} Removed for potential matching to HRT selection (they have a looser eta cut)
 
     // Save position of most energetic HBHE tower
     // in EB-aligned coordinates
@@ -148,7 +148,7 @@ bool RecHitAnalyzer::runEvtSel_jet ( const edm::Event& iEvent, const edm::EventS
   } // good jets 
   
   //if ( nJet != nJets_ ) return false;
-  if ( nJet < nJets_ ) return false;
+  if ( nJet > nJets_ ) return false; // changed less than to greater than
   if ( debug ) std::cout << " >> analyze: passed" << std::endl;
 
   jet_eventId_ = iEvent.id().event();

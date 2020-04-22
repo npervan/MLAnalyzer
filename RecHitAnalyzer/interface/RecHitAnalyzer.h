@@ -242,6 +242,8 @@ class RecHitAnalyzer : public edm::EDAnalyzer  {
     double minJetPt_;
     double maxJetEta_;
     bool isTTbar_;
+    double minTopPt_;
+    double maxTopEta_;
     std::vector<int> vJetIdxs;
 
 
@@ -261,7 +263,7 @@ std::vector<double> adjEtaBins[Nadjproj];
 //
 // constants, enums and typedefs
 //
-static const bool debug = true;
+static const bool debug = false;
 
 static const int nEE = 2;
 static const int nTOB = 6;

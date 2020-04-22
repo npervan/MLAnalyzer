@@ -43,6 +43,8 @@ RecHitAnalyzer::RecHitAnalyzer(const edm::ParameterSet& iConfig)
   minJetPt_  = iConfig.getParameter<double>("minJetPt");
   maxJetEta_ = iConfig.getParameter<double>("maxJetEta");
   isTTbar_   = iConfig.getParameter<bool>("isTTbar");
+  minTopPt_  = iConfig.getParameter<double>("minTopPt");
+  maxTopEta_ = iConfig.getParameter<double>("maxTopEta");
   std::cout << " >> Mode set to " << mode_ << std::endl;
   if ( mode_ == "JetLevel" ) {
     doJets_ = true;

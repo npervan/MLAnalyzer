@@ -4,21 +4,21 @@ config = config()
 
 
 mc='TTbar'
-pT=400
+pT=200
 m_num=2000
 filelist_ = ''
 files_ = []
 the_name=''
 splitting = 1 
 nJets_=2
-isTTbar_=0
+isTTbar_=1
 
 #dataset_ = '/RSGluonToTT_M-4000_TuneCUETP8M1_14TeV-pythia8/PhaseIITDRFall17DR-PU200_93X_upgrade2023_realistic_v2-v1/GEN-SIM-RECO'
 assert mc == 'TTbar' or mc == 'QCD'
 if mc=='TTbar':
-    filelist_ = 'aod_m-2000_filelist.txt'
-    the_name = 'TTbar_pT%d_%dTjet_aod_m-%d' % (pT,nJets_,m_num)
-    splitting = 20 #current ~50 events per file
+    filelist_ = 'aod_m-%d_filelist.txt' % m_num
+    the_name = 'TTbar_pT%d_%dTjet_aod_m-%d_0420' % (pT,nJets_,m_num)
+    splitting = 4 #current ~50 events per file
     files_ = open(filelist_).readlines()
     isTTbar_=1
 elif mc=='QCD':
@@ -37,7 +37,7 @@ skipEvents_ = 0
 
 
 config.General.requestName = the_name
-config.General.workArea = '/uscms/home/npervan/nobackup/e2e/jmar/CMSSW_8_0_21/src/MLAnalyzer'
+config.General.workArea = '/uscms/home/npervan/nobackup/e2e/slc7_jmar/CMSSW_8_0_21/src/MLAnalyzer'
 config.General.transferOutputs = True
 config.General.transferLogs = True
 
@@ -45,6 +45,7 @@ config.JobType.pluginName = 'Analysis'
 config.JobType.psetName = 'RecHitAnalyzer/python/ConfFile_cfg.py'
 config.JobType.pyCfgParams = ['outputFile=%s'%outputFile_,'isTTbar=%d'%isTTbar_]
 config.JobType.maxMemoryMB = 4000
+config.JobType.allowUndistributedCMSSW = True
 #config.JobType.pyCfgParams = ['maxEvents=%s'%maxEvents_,'outputFile=%s'%outputFile_,'skipEvents=%s'%skipEvents_]
 #config.JobType.pluginName = 'RecHitAnalyzer/python/ConfFile_cfg.py outputFile=%s maxEvents=%s skipEvents=%s' % (outputFile_, maxEvents_, skipEvents_)
 
@@ -53,7 +54,7 @@ config.Data.userInputFiles = files_
 config.Data.splitting = 'FileBased'
 config.Data.unitsPerJob = splitting #if splitting by files
 config.Data.publication = False
-config.Data.outLFNDirBase = '/store/user/%s/e2e/jmar_aod_ntuples/' % (getUsernameFromSiteDB())
+config.Data.outLFNDirBase = '/store/user/npervan/e2e/jmar_0420/' #% (getUsernameFromSiteDB())
 config.Data.outputDatasetTag = the_name
 
 config.Site.storageSite = 'T3_US_FNALLPC'

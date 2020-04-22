@@ -42,12 +42,14 @@ bool RecHitAnalyzer::runEvtSel_jet_dijet( const edm::Event& iEvent, const edm::E
   vDijet_jet_eta_.clear();
 
   int nJet = 0;
-
+  int ii = 0;
   std::vector<TLorentzVector> had_tops,bdau,wdau;
   if (isTTbar_) { //is a ttbar sample
   for (const auto & p : *genParticles.product())
   {
     int id = p.pdgId();
+    if ( std::abs(p.pt()) < minTopPt_ ) continue;
+    if ( std::abs(p.eta()) > maxTopEta_) continue;
     if(abs(id) != 6 || p.numberOfDaughters()!=2) continue;
     int iw=-1;
     int ib=-1;
@@ -61,8 +63,12 @@ bool RecHitAnalyzer::runEvtSel_jet_dijet( const edm::Event& iEvent, const edm::E
       {
         iw=1;ib=0;
       }
-      else continue;
+      else continue;  
     }
+    
+    if ( debug ) std::cout << " >> top[" << ii << "] Pt: " << p.pt() << " topEta: " << p.eta() << " topE: " << p.energy() << std::endl; 
+    ii++;
+
     const reco::Candidate *d = p.daughter(iw);
     const reco::Candidate *b = p.daughter(ib);
     while(d->numberOfDaughters() == 1) d = d->daughter(0);
@@ -86,13 +92,14 @@ bool RecHitAnalyzer::runEvtSel_jet_dijet( const edm::Event& iEvent, const edm::E
       TLorentzVector vjet;
       vjet.SetPtEtaPhiE(iJet->pt(),iJet->eta(),iJet->phi(),iJet->energy());
 
-      if ( std::abs(iJet->pt()) < minJetPt_ ) continue;
-      if ( std::abs(iJet->eta()) > maxJetEta_) continue;
+      //if ( std::abs(iJet->pt()) < minJetPt_ ) continue;
+      //if ( std::abs(iJet->eta()) > maxJetEta_) continue;
       if (had_tops[ihad].DeltaR(vjet)>0.6) continue;
-      if (wdau[ihad].DeltaR(vjet)>0.8) continue;
-      if (bdau[ihad].DeltaR(vjet)>0.8) continue;
+      //if (wdau[ihad].DeltaR(vjet)>0.8) continue;
+      //if (bdau[ihad].DeltaR(vjet)>0.8) continue;
 
-      if ( debug ) std::cout << " >> jet[" << iJ << "]Pt:" << iJet->pt() << " jetE:" << iJet->energy() << " jetM:" << iJet->mass() << std::endl;
+      if ( debug ) std::cout << " >> top[" << ihad << "] E: " << had_tops[ihad].E() << std::endl;
+      if ( debug ) std::cout << " >> jet[" << iJ << "] Pt: " << iJet->pt() << " jetEta: " << iJet->eta() << " jetE: " << iJet->energy() << " jetM: " << iJet->mass() << std::endl;
 
       vJetIdxs.push_back(iJ);
 
@@ -113,7 +120,7 @@ bool RecHitAnalyzer::runEvtSel_jet_dijet( const edm::Event& iEvent, const edm::E
 
       vJetIdxs.push_back(iJ);
       nJet++;
-      if ( (nJets_ > 0) && (nJet >= nJets_) ) break;
+      if ( (nJets_ > 0) && (nJet > nJets_) ) break;  //  changed greater than or equal to to greater than
     }
   } // is QCD
 
@@ -122,7 +129,7 @@ bool RecHitAnalyzer::runEvtSel_jet_dijet( const edm::Event& iEvent, const edm::E
       std::cout << " >> vJetIdxs:" << thisJetIdx << std::endl;
   }
 
-  if ( (nJets_ > 0) && (nJet != nJets_) ){
+  if ( (nJets_ > 0) && (nJet > nJets_) ){ // changed not equal to greater than
     if ( debug ) std::cout << " Fail jet multiplicity:  " << nJet << " < " << nJets_ << std::endl;
     return false;
   }

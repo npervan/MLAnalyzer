@@ -47,19 +47,64 @@ def crop_jet(imgECAL, iphi, ieta, jet_shape=125):
     iphi = int(iphi*5 + 2) # 5 EB xtals per HB tower
     ieta = int(ieta*5 + 2) # 5 EB xtals per HB tower
 
+    # eta: 280 and phi: 360
     # Wrap-around on left side
     if iphi < off:
-        diff = off-iphi
-        img_crop = np.concatenate((imgECAL[:,ieta-off:ieta+off+1,-diff:],
+        phi_diff = off-iphi
+        #if eta above or below
+        if ieta < off:
+            eta_diff = off-ieta
+            img_crop = np.concatenate((imgECAL[:,0:ieta+off+1,-phi_diff:],
+                                   imgECAL[:,0:ieta+off+1,:iphi+off+1]), axis=-1) #Set lower eta edge to 0 then pad
+            img_crop = np.pad(img_crop,((0,0),(eta_diff,0),(0,0)), 'constant')
+
+        elif 280-ieta < off:
+            eta_diff = off - (280-ieta)
+            img_crop = np.concatenate((imgECAL[:,ieta-off:280,-phi_diff:],
+                                   imgECAL[:,ieta-off:280,:iphi+off+1]), axis=-1) #Set upper eta edge to 280 then pad                                                      
+            img_crop = np.pad(img_crop,((0,0),(0,eta_diff),(0,0)), 'constant')
+
+        else:
+            img_crop = np.concatenate((imgECAL[:,ieta-off:ieta+off+1,-phi_diff:],
                                    imgECAL[:,ieta-off:ieta+off+1,:iphi+off+1]), axis=-1)
+        
+
     # Wrap-around on right side
     elif 360-iphi < off:
-        diff = off - (360-iphi)
+        phi_diff = off - (360-iphi)
+        #if eta above or below
+        if ieta < off:
+            eta_diff = off-ieta
+            img_crop = np.concatenate((imgECAL[:,0:ieta+off+1,iphi-off:],
+                                       imgECAL[:,0:ieta+off+1,:phi_diff+1]), axis=-1) #Set lower eta edge to 0 then pad                                                      
+            img_crop = np.pad(img_crop,((0,0),(eta_diff,0),(0,0)), 'constant')
+
+        elif 280-ieta < off:
+            eta_diff = off - (280-ieta)
+            img_crop = np.concatenate((imgECAL[:,ieta-off:280,iphi-off:],
+                                       imgECAL[:,ieta-off:280,:phi_diff+1]), axis=-1) #Set upper eta edge to 280 then pad                                                    
+            img_crop = np.pad(img_crop,((0,0),(0,eta_diff),(0,0)), 'constant')
+
+        else:
         img_crop = np.concatenate((imgECAL[:,ieta-off:ieta+off+1,iphi-off:],
-                                   imgECAL[:,ieta-off:ieta+off+1,:diff+1]), axis=-1)
+                                   imgECAL[:,ieta-off:ieta+off+1,:phi_diff+1]), axis=-1)
+        
+        
     # Nominal case
     else:
-        img_crop = imgECAL[:,ieta-off:ieta+off+1,iphi-off:iphi+off+1]
+        #if eta above or below
+        if ieta < off:
+            eta_diff = off-ieta
+            img_crop = imgECAL[:,0:ieta+off+1,iphi-off:iphi+off+1]
+            img_crop = np.pad(img_crop,((0,0),(eta_diff,0),(0,0)), 'constant')
+
+        elif 280-ieta < off:
+            eta_diff = off - (280-ieta)
+            img_crop = imgECAL[:,ieta-off:280,iphi-off:iphi+off+1]
+            img_crop = np.pad(img_crop,((0,0),(0,eta_diff),(0,0)), 'constant')
+
+        else:
+            img_crop = imgECAL[:,ieta-off:ieta+off+1,iphi-off:iphi+off+1]
 
     return img_crop
 
