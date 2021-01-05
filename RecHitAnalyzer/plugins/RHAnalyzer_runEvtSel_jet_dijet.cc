@@ -116,7 +116,7 @@ bool RecHitAnalyzer::runEvtSel_jet_dijet( const edm::Event& iEvent, const edm::E
       if ( std::abs(iJet->pt()) < minJetPt_ ) continue;
       if ( std::abs(iJet->eta()) > maxJetEta_ ) continue;
       
-      if ( debug ) std::cout << " >> jet[" << iJ << "]Pt:" << iJet->pt() << " jetE:" << iJet->energy() << " jetM:" << iJet->mass() << std::endl;
+      if std::cout << " >> jet[" << iJ << "]Pt:" << iJet->pt() << " jetE:" << iJet->energy() << " jetM:" << iJet->mass() << std::endl;
 
       vJetIdxs.push_back(iJ);
       nJet++;
