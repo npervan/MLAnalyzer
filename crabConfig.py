@@ -1,11 +1,11 @@
-from CRABClient.UserUtilities import config, getUsernameFromSiteDB
+from CRABClient.UserUtilities import config
 import random
 config = config()
 
 
 mc='TTbar'
 pT=200
-m_num=2000
+m_num=5000
 filelist_ = ''
 files_ = []
 the_name=''
@@ -17,7 +17,7 @@ isTTbar_=1
 assert mc == 'TTbar' or mc == 'QCD'
 if mc=='TTbar':
     filelist_ = 'aod_m-%d_filelist.txt' % m_num
-    the_name = 'TTbar_pT%d_%dTjet_aod_m-%d_0420' % (pT,nJets_,m_num)
+    the_name = 'TTbar_pT%d_%dTjet_aod_m-%d_Dec20' % (pT,nJets_,m_num)
     splitting = 4 #current ~50 events per file
     files_ = open(filelist_).readlines()
     isTTbar_=1
@@ -36,7 +36,7 @@ maxEvents_ = -1
 skipEvents_ = 0
 
 
-config.General.requestName = the_name
+config.General.requestName = the_name+'Dec20'
 config.General.workArea = '/uscms/home/npervan/nobackup/e2e/slc7_jmar/CMSSW_8_0_21/src/MLAnalyzer'
 config.General.transferOutputs = True
 config.General.transferLogs = True
@@ -54,7 +54,7 @@ config.Data.userInputFiles = files_
 config.Data.splitting = 'FileBased'
 config.Data.unitsPerJob = splitting #if splitting by files
 config.Data.publication = False
-config.Data.outLFNDirBase = '/store/user/npervan/e2e/jmar_0420/' #% (getUsernameFromSiteDB())
+config.Data.outLFNDirBase = '/store/user/npervan/e2e/jmar_Dec20/' #% (getUsernameFromSiteDB())
 config.Data.outputDatasetTag = the_name
 
 config.Site.storageSite = 'T3_US_FNALLPC'

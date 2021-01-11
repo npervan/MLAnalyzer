@@ -42,86 +42,105 @@ bool RecHitAnalyzer::runEvtSel_jet_dijet( const edm::Event& iEvent, const edm::E
   vDijet_jet_eta_.clear();
 
   int nJet = 0;
-  int ii = 0;
-  std::vector<TLorentzVector> had_tops,bdau,wdau;
   if (isTTbar_) { //is a ttbar sample
-  for (const auto & p : *genParticles.product())
-  {
-    int id = p.pdgId();
-    if ( std::abs(p.pt()) < minTopPt_ ) continue;
-    if ( std::abs(p.eta()) > maxTopEta_) continue;
-    if(abs(id) != 6 || p.numberOfDaughters()!=2) continue;
-    int iw=-1;
-    int ib=-1;
-    if (abs(p.daughter(0)->pdgId())==24 && abs(p.daughter(1)->pdgId())==5)
-    {
-      iw=0;ib=1;
-    }
-    else
-    {
-      if(abs(p.daughter(1)->pdgId())==24 && abs(p.daughter(0)->pdgId())==5)
-      {
-        iw=1;ib=0;
+    std::vector<TLorentzVector> had_tops,bdau,wdau;
+    for (const auto & p : *genParticles.product()) {
+      int id = p.pdgId();
+      if ( std::abs(p.pt()) < minTopPt_ ) continue;
+      if ( std::abs(p.eta()) > maxTopEta_) continue;
+      if(abs(id) != 6 || p.numberOfDaughters()!=2) continue;
+      int iw=-1;
+      int ib=-1;
+      if (abs(p.daughter(0)->pdgId())==24 && abs(p.daughter(1)->pdgId())==5) {
+	iw=0;ib=1;
+      }
+      else if (abs(p.daughter(1)->pdgId())==24 && abs(p.daughter(0)->pdgId())==5) {
+	iw=1;ib=0;
       }
       else continue;  
-    }
     
-    if ( debug ) std::cout << " >> top[" << ii << "] Pt: " << p.pt() << " topEta: " << p.eta() << " topE: " << p.energy() << std::endl; 
-    ii++;
+      if (debug) std::cout << " >> topPt: " << p.pt() << " topEta: " << p.eta() << " topE: " << p.energy() << std::endl; 
+    
+      const reco::Candidate *d = p.daughter(iw);
+      const reco::Candidate *b = p.daughter(ib);
+      while(d->numberOfDaughters() == 1) d = d->daughter(0);
+      if(!(abs(d->daughter(0)->pdgId()) < 10 && abs(d->daughter(1)->pdgId()) < 10)) continue;
+      TLorentzVector the_top,the_w,the_b;
+      the_top.SetPtEtaPhiE(p.pt(),p.eta(),p.phi(),p.energy());
+      the_w.SetPtEtaPhiE(d->pt(),d->eta(),d->phi(),d->energy());
+      the_b.SetPtEtaPhiE(b->pt(),b->eta(),b->phi(),b->energy());
+      had_tops.push_back(the_top);
+      wdau.push_back(the_w);
+      bdau.push_back(the_b);
+    }
 
-    const reco::Candidate *d = p.daughter(iw);
-    const reco::Candidate *b = p.daughter(ib);
-    while(d->numberOfDaughters() == 1) d = d->daughter(0);
-    if(!(abs(d->daughter(0)->pdgId()) < 10 && abs(d->daughter(1)->pdgId()) < 10)) continue;
-    TLorentzVector the_top,the_w,the_b;
-    the_top.SetPtEtaPhiE(p.pt(),p.eta(),p.phi(),p.energy());
-    the_w.SetPtEtaPhiE(d->pt(),d->eta(),d->phi(),d->energy());
-    the_b.SetPtEtaPhiE(b->pt(),b->eta(),b->phi(),b->energy());
-    had_tops.push_back(the_top);
-    wdau.push_back(the_w);
-    bdau.push_back(the_b);
-  }
-
-
-  // Loop over jets
-  for ( unsigned ihad=0;ihad<had_tops.size();ihad++)
-  {
-    for ( unsigned iJ(0); iJ != jets->size(); ++iJ )
-    {
-      reco::PFJetRef iJet( jets, iJ );
-      TLorentzVector vjet;
-      vjet.SetPtEtaPhiE(iJet->pt(),iJet->eta(),iJet->phi(),iJet->energy());
-
-      //if ( std::abs(iJet->pt()) < minJetPt_ ) continue;
-      //if ( std::abs(iJet->eta()) > maxJetEta_) continue;
-      if (had_tops[ihad].DeltaR(vjet)>0.6) continue;
+    // Loop over jets
+    for ( unsigned ihad=0;ihad<had_tops.size();ihad++) {
+      float drMin = 999;
+      reco::PFJetRef theJet;
+      int indJet = -1;
+      for ( unsigned iJ(0); iJ != jets->size(); ++iJ ) {
+	reco::PFJetRef iJet( jets, iJ );
+	TLorentzVector vjet;
+	vjet.SetPtEtaPhiE(iJet->pt(),iJet->eta(),iJet->phi(),iJet->energy());
+	//if ( std::abs(iJet->pt()) < minJetPt_ ) continue;
+	//if ( std::abs(iJet->eta()) > maxJetEta_) continue;
+	if (had_tops[ihad].DeltaR(vjet)<drMin) {
+          drMin = had_tops[ihad].DeltaR(vjet);
+          indJet = iJ;
+          theJet = iJet;
+        }
+      } // Jets
+      if (drMin>0.6) continue;
       //if (wdau[ihad].DeltaR(vjet)>0.8) continue;
       //if (bdau[ihad].DeltaR(vjet)>0.8) continue;
-
-      if ( debug ) std::cout << " >> top[" << ihad << "] E: " << had_tops[ihad].E() << std::endl;
-      if ( debug ) std::cout << " >> jet[" << iJ << "] Pt: " << iJet->pt() << " jetEta: " << iJet->eta() << " jetE: " << iJet->energy() << " jetM: " << iJet->mass() << std::endl;
-
-      vJetIdxs.push_back(iJ);
-
-      nJet++;
-      //break; This should allow two hardonic tops
-    } // jets
-    if ( (nJets_ > 0) && (nJet >= nJets_) ) break;
-  } // hadronic tops
-  } // isTTbar
-  else { //is QCD
-    for ( unsigned iJ(0); iJ != jets->size(); ++iJ )
-    {
-      reco::PFJetRef iJet( jets, iJ );
-      if ( std::abs(iJet->pt()) < minJetPt_ ) continue;
-      if ( std::abs(iJet->eta()) > maxJetEta_ ) continue;
       
-      if std::cout << " >> jet[" << iJ << "]Pt:" << iJet->pt() << " jetE:" << iJet->energy() << " jetM:" << iJet->mass() << std::endl;
+      if ( debug ) std::cout << " >> top[" << ihad << "] E: " << had_tops[ihad].E() << std::endl;
+      if ( debug ) std::cout << " >> jet[" << indJet << "] Pt: " << theJet->pt() << " jetEta: " << theJet->eta() << " jetE: " << theJet->energy() << " jetM: " << theJet->mass() << std::endl;
 
-      vJetIdxs.push_back(iJ);
+      vJetIdxs.push_back(indJet);
       nJet++;
-      if ( (nJets_ > 0) && (nJet > nJets_) ) break;  //  changed greater than or equal to to greater than
+      //break; This should allow two hadronic tops
+      if ( (nJets_ > 0) && (nJet >= nJets_) ) break;
+    } // hadronic tops
+  } // isTTbar
+
+  else { //is QCD
+    std::vector<TLorentzVector> qcds;
+    for (const auto & p : *genParticles.product()) { 
+      int id = p.pdgId();
+      if ( std::abs(p.pt()) < minTopPt_ ) continue;
+      if ( std::abs(p.eta()) > maxTopEta_) continue;
+      if(abs(id)==1 || abs(id)==2 || abs(id)==3 || abs(id)==4 || abs(id)==5 || abs(id)==21) {
+        if ( !p.isHardProcess() ) continue;
+        TLorentzVector the_qcd;
+	the_qcd.SetPtEtaPhiE(p.pt(),p.eta(),p.phi(),p.energy());
+        qcds.push_back(the_qcd);
+      }
     }
+    for ( unsigned ihad=0;ihad<qcds.size();ihad++) {
+      float drMin = 999;
+      reco::PFJetRef theJet;
+      int indJet = -1;
+      for ( unsigned iJ(0); iJ != jets->size(); ++iJ ) {
+	reco::PFJetRef iJet( jets, iJ );
+        TLorentzVector vjet;
+        vjet.SetPtEtaPhiE(iJet->pt(),iJet->eta(),iJet->phi(),iJet->energy());
+        //if ( std::abs(iJet->pt()) < minJetPt_ ) continue;                                                
+        //if ( std::abs(iJet->eta()) > maxJetEta_ ) continue;                        
+        if (qcds[ihad].DeltaR(vjet)<drMin) {
+	  drMin = qcds[ihad].DeltaR(vjet);
+	  indJet = iJ;
+	  theJet = iJet;
+	}
+      } //Jets
+      if ( drMin > 0.6 ) continue;
+      if ( debug ) std::cout << " >> jet[" << indJet << "]Pt:" << theJet->pt() << " jetE:" << theJet->energy() << " jetM:" << theJet->mass() << std::endl;
+      vJetIdxs.push_back(indJet);
+      nJet++;
+      if ( (nJets_ > 0) && (nJet > nJets_) ) break;  //  changed greater than or equal to to greater than                           
+    } //QCD loop
+
   } // is QCD
 
   if ( debug ) {
